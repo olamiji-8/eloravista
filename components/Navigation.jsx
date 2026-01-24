@@ -1,7 +1,9 @@
+// components/Navigation.jsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -21,21 +23,21 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10  flex items-center justify-center">
-              {/* Replace this div with your logo image */}
-              <img src="/Elora-Vista-Logo.png" alt="Logo" className="w-full h-full rounded-full" />
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <img src="/logo.png" alt="Logo" className="w-full h-full rounded-full" />
             </div>
-          </div>
+            <span className="text-white font-bold text-xl">ELORA VISTA</span>
+          </Link>
           
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#home" className="text-white hover:text-gray-200 transition-colors font-medium">
+            <Link href="/" className="text-white hover:text-gray-200 transition-colors font-medium">
               HOME
-            </a>
-            <a href="#about" className="text-white hover:text-gray-200 transition-colors font-medium">
+            </Link>
+            <Link href="/about" className="text-white hover:text-gray-200 transition-colors font-medium">
               ABOUT
-            </a>
+            </Link>
             <div className="relative group">
               <button className="text-white hover:text-gray-200 transition-colors font-medium flex items-center gap-1">
                 SHOP
@@ -45,23 +47,23 @@ const Navigation = () => {
               </button>
               {/* Dropdown Menu */}
               <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <a href="#fashion" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                <Link href="/fashion" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
                   FASHION
-                </a>
-                <a href="#accessories" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                </Link>
+                <Link href="/accessories" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
                   ACCESSORIES
-                </a>
-                <a href="#drinkware" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                </Link>
+                <Link href="/drinkware" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
                   DRINKWARE
-                </a>
-                <a href="#home-baby" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
+                </Link>
+                <Link href="/home-baby" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
                   HOME AND BABY
-                </a>
+                </Link>
               </div>
             </div>
-            <a href="#contact" className="text-white hover:text-gray-200 transition-colors font-medium">
+            <Link href="/contact" className="text-white hover:text-gray-200 transition-colors font-medium">
               CONTACT US
-            </a>
+            </Link>
           </div>
 
           {/* Cart Section */}
