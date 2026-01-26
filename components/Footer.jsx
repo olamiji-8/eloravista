@@ -108,7 +108,7 @@ const Footer = () => {
               Copyright © 2026 EloraVista
             </p>
             <p className="text-gray-600">
-              Powered by WP Engine
+              Powered by olapelu
             </p>
           </div>
         </div>
