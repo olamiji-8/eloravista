@@ -1,26 +1,54 @@
 // app/fashion/page.jsx
+'use client';
+
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
+import { productsAPI } from '@/lib/api/products';
+import { useCart } from '@/hooks/useCart';
 
 export default function FashionPage() {
-  const products = [
-    { id: 1, name: "Fashion Item 1", price: "£49.99", image: "/placeholder-product.jpg" },
-    { id: 2, name: "Fashion Item 2", price: "£59.99", image: "/placeholder-product.jpg" },
-    { id: 3, name: "Fashion Item 3", price: "£39.99", image: "/placeholder-product.jpg" },
-    { id: 4, name: "Fashion Item 4", price: "£69.99", image: "/placeholder-product.jpg" },
-    { id: 5, name: "Fashion Item 5", price: "£79.99", image: "/placeholder-product.jpg" },
-    { id: 6, name: "Fashion Item 6", price: "£44.99", image: "/placeholder-product.jpg" },
-    { id: 7, name: "Fashion Item 7", price: "£54.99", image: "/placeholder-product.jpg" },
-    { id: 8, name: "Fashion Item 8", price: "£64.99", image: "/placeholder-product.jpg" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState('-createdAt');
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    fetchProducts();
+  }, [sort]);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await productsAPI.getProducts({
+        category: 'Fashion',
+        sort,
+        limit: 12,
+      });
+      setProducts(data.data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      await addToCart(productId, 1);
+      alert('Added to cart!');
+    } catch (error) {
+      alert('Please login to add items to cart');
+    }
+  };
 
   return (
     <>
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#233e89] via-[#233e89] to-[#233e89] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#1e40af] via-[#2563eb] to-[#3b82f6] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Fashion</h1>
@@ -40,52 +68,87 @@ export default function FashionPage() {
               Showing <span className="font-bold">{products.length}</span> products
             </p>
             <div className="flex gap-4">
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]">
-                <option>Sort by: Featured</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Newest</option>
+              <select 
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+              >
+                <option value="-createdAt">Sort by: Featured</option>
+                <option value="price">Price: Low to High</option>
+                <option value="-price">Price: High to Low</option>
+                <option value="-createdAt">Newest</option>
               </select>
             </div>
           </div>
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
-                <div className="relative h-72 bg-gray-200 overflow-hidden">
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    Product Image
+            {loading ? (
+              Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                  <div className="h-72 bg-gray-300"></div>
+                  <div className="p-5">
+                    <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-6 bg-gray-300 rounded w-20"></div>
+                      <div className="h-10 bg-gray-300 rounded w-28"></div>
+                    </div>
                   </div>
-                  <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
                 </div>
-                <div className="p-5">
-                  <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
-                  <p className="text-gray-600 mb-4 text-sm">Premium quality fashion item</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-[#2563eb] font-bold text-xl">{product.price}</p>
-                    <button className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors">
-                      Add to Cart
+              ))
+            ) : products.length > 0 ? (
+              products.map((product) => (
+                <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
+                  <div className="relative h-72 bg-gray-200 overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={product.images[0].url} 
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        Product Image
+                      </div>
+                    )}
+                    <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
                     </button>
                   </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
+                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[#2563eb] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <button 
+                        onClick={() => handleAddToCart(product._id)}
+                        className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-20">
+                <p className="text-gray-600 text-xl">No products found in Fashion category</p>
               </div>
-            ))}
+            )}
           </div>
 
           {/* Pagination */}
           <div className="flex justify-center items-center gap-2 mt-12">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
               Previous
             </button>
-            <button className="px-4 py-2 bg-[#2563eb] text-white rounded-lg font-bold">1</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">2</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">3</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="px-4 py-2 bg-[#2563eb] text-white rounded-lg font-bold cursor-pointer">1</button>
+            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">2</button>
+            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">3</button>
+            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
               Next
             </button>
           </div>

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
+import { contactAPI } from '@/lib/api';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +15,28 @@ export default function ContactPage() {
     email: '',
     message: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      await contactAPI.submitContact(formData);
+      setSuccess(true);
+      setFormData({ name: '', subject: '', email: '', message: '' });
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -34,12 +52,7 @@ export default function ContactPage() {
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(30, 64, 175, 0.6), rgba(37, 99, 235, 0.6)), url("/contact-hero.jpg")',
-          }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1e40af] via-[#2563eb] to-[#3b82f6] opacity-90" />
         <div className="relative max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-6xl font-bold text-white mb-4">Contact Us</h1>
         </div>
@@ -94,6 +107,18 @@ export default function ContactPage() {
 
             {/* Right Side - Contact Form */}
             <div className="bg-white rounded-lg shadow-md p-8">
+              {success && (
+                <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                  Thank you! Your message has been sent successfully. We wll get back to you soon.
+                </div>
+              )}
+              
+              {error && (
+                <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                  {error}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <input
@@ -145,9 +170,10 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#2563eb] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+                  disabled={loading}
+                  className="w-full bg-[#2563eb] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SEND MESSAGE
+                  {loading ? 'SENDING...' : 'SEND MESSAGE'}
                 </button>
               </form>
             </div>
