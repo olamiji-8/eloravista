@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
-import { contactAPI } from '@/lib/api';
+import { contactAPI } from '@/lib/api/contact';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
