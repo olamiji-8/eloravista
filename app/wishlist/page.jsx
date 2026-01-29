@@ -1,20 +1,21 @@
+// app/wishlist/page.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { wishlistAPI } from '@/lib/api/wishlist';
-import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { useRouter } from 'next/navigation';
-import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { wishlistAPI } from '@/lib/api/wishlist';
 
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function WishlistPage() {
 
   const fetchWishlist = async () => {
     try {
+      setLoading(true);
       const data = await wishlistAPI.getWishlist();
       setWishlist(data.data);
     } catch (error) {
@@ -37,11 +39,13 @@ export default function WishlistPage() {
   };
 
   const handleRemove = async (productId) => {
-    try {
-      await wishlistAPI.removeFromWishlist(productId);
-      fetchWishlist();
-    } catch (error) {
-      alert('Failed to remove from wishlist');
+    if (confirm('Remove this item from wishlist?')) {
+      try {
+        await wishlistAPI.removeFromWishlist(productId);
+        fetchWishlist();
+      } catch (error) {
+        alert('Failed to remove item');
+      }
     }
   };
 
@@ -62,12 +66,12 @@ export default function WishlistPage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="animate-pulse">
               <div className="h-8 bg-gray-300 rounded w-48 mb-8"></div>
-              <div className="grid grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="bg-white rounded-lg p-4">
+              <div className="grid md:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-white rounded-lg p-4">
                     <div className="h-48 bg-gray-300 rounded mb-4"></div>
                     <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded"></div>
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
                   </div>
                 ))}
               </div>
@@ -85,13 +89,14 @@ export default function WishlistPage() {
         <Navigation />
         <div className="min-h-screen pt-24 pb-12 bg-gray-100">
           <div className="max-w-7xl mx-auto px-6 text-center py-20">
+            <Heart className="w-24 h-24 mx-auto text-gray-300 mb-6" />
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Wishlist is Empty</h1>
-            <p className="text-gray-600 mb-8">Save items you love for later</p>
+            <p className="text-gray-600 mb-8">Save your favorite items here</p>
             <Link 
               href="/store"
               className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
             >
-              Start Shopping
+              Continue Shopping
             </Link>
           </div>
         </div>
@@ -105,40 +110,53 @@ export default function WishlistPage() {
       <Navigation />
       <div className="min-h-screen pt-24 pb-12 bg-gray-100">
         <div className="max-w-7xl mx-auto px-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8">My Wishlist ({wishlist.products.length} items)</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold text-gray-900">My Wishlist</h1>
+            <p className="text-gray-600">{wishlist.products.length} items</p>
+          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlist.products.map((product) => (
-              <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden group">
-                <div className="relative h-64 bg-gray-200">
-                  {product.images && product.images.length > 0 ? (
-                    <img 
-                      src={product.images[0].url} 
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                  <button 
-                    onClick={() => handleRemove(product._id)}
-                    className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5 text-red-500" />
-                  </button>
-                </div>
+              <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-shadow">
+                <Link href={`/product/${product._id}`}>
+                  <div className="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={product.images[0].url} 
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <span className="text-gray-400">No Image</span>
+                    )}
+                  </div>
+                </Link>
+                
                 <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2">{product.name}</h3>
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-4">{product.description}</p>
+                  <Link href={`/product/${product._id}`}>
+                    <h3 className="font-bold text-lg mb-2 hover:text-[#2563eb] transition-colors line-clamp-2">
+                      {product.name}
+                    </h3>
+                  </Link>
+                  <p className="text-gray-600 mb-2 text-sm line-clamp-2">{product.description}</p>
                   <p className="text-[#2563eb] font-bold text-xl mb-4">£{product.price.toFixed(2)}</p>
-                  <button 
-                    onClick={() => handleAddToCart(product._id)}
-                    className="w-full bg-[#2563eb] text-white py-2 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
-                  >
-                    Add to Cart
-                  </button>
+                  
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleAddToCart(product._id)}
+                      disabled={product.stock === 0}
+                      className="flex-1 bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                    <button 
+                      onClick={() => handleRemove(product._id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

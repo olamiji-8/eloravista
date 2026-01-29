@@ -1,23 +1,21 @@
 // hooks/useAuth.js
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '@/lib/api/auth';
 
-export const useAuth = () => {
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = () => {
-    const storedUser = authAPI.getStoredUser();
-    setUser(storedUser);
+    const stored = authAPI.getStoredUser();
+    setUser(stored);
     setLoading(false);
-  };
+  }, []);
 
   const login = async (credentials) => {
     try {
@@ -54,7 +52,7 @@ export const useAuth = () => {
     setUser(null);
   };
 
-  return {
+  const value = {
     user,
     loading,
     error,
@@ -64,4 +62,14 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return ctx;
 };

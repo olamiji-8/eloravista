@@ -1,30 +1,21 @@
+// app/wishlist/page.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { usersAPI } from '@/lib/api/users';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { wishlistAPI } from '@/lib/api/wishlist';
 
-export default function ProfilePage() {
-  const [profile, setProfile] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: {
-      street: '',
-      city: '',
-      state: '',
-      country: '',
-      zipCode: ''
-    }
-  });
+export default function WishlistPage() {
+  const [wishlist, setWishlist] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,38 +23,38 @@ export default function ProfilePage() {
       router.push('/login');
       return;
     }
-    fetchProfile();
+    fetchWishlist();
   }, [isAuthenticated, router]);
 
-  const fetchProfile = async () => {
+  const fetchWishlist = async () => {
     try {
-      const data = await usersAPI.getProfile();
-      setProfile(data.data);
-      setFormData({
-        name: data.data.name || '',
-        email: data.data.email || '',
-        phone: data.data.phone || '',
-        address: data.data.address || { street: '', city: '', state: '', country: '', zipCode: '' }
-      });
+      setLoading(true);
+      const data = await wishlistAPI.getWishlist();
+      setWishlist(data.data);
     } catch (error) {
-      console.error('Failed to fetch profile:', error);
+      console.error('Failed to fetch wishlist:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+  const handleRemove = async (productId) => {
+    if (confirm('Remove this item from wishlist?')) {
+      try {
+        await wishlistAPI.removeFromWishlist(productId);
+        fetchWishlist();
+      } catch (error) {
+        alert('Failed to remove item');
+      }
+    }
+  };
+
+  const handleAddToCart = async (productId) => {
     try {
-      await usersAPI.updateProfile(formData);
-      alert('Profile updated successfully!');
-      setEditing(false);
-      fetchProfile();
+      await addToCart(productId, 1);
+      alert('Added to cart!');
     } catch (error) {
-      alert('Failed to update profile');
-    } finally {
-      setSaving(false);
+      alert('Failed to add to cart');
     }
   };
 
@@ -72,15 +63,41 @@ export default function ProfilePage() {
       <>
         <Navigation />
         <div className="min-h-screen pt-24 pb-12 bg-gray-100">
-          <div className="max-w-4xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="animate-pulse">
               <div className="h-8 bg-gray-300 rounded w-48 mb-8"></div>
-              <div className="bg-white rounded-lg p-8">
-                <div className="h-6 bg-gray-300 rounded mb-4"></div>
-                <div className="h-6 bg-gray-300 rounded mb-4"></div>
-                <div className="h-6 bg-gray-300 rounded"></div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-white rounded-lg p-4">
+                    <div className="h-48 bg-gray-300 rounded mb-4"></div>
+                    <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!wishlist || wishlist.products.length === 0) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen pt-24 pb-12 bg-gray-100">
+          <div className="max-w-7xl mx-auto px-6 text-center py-20">
+            <Heart className="w-24 h-24 mx-auto text-gray-300 mb-6" />
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Wishlist is Empty</h1>
+            <p className="text-gray-600 mb-8">Save your favorite items here</p>
+            <Link 
+              href="/store"
+              className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+            >
+              Continue Shopping
+            </Link>
           </div>
         </div>
         <Footer />
@@ -92,162 +109,57 @@ export default function ProfilePage() {
     <>
       <Navigation />
       <div className="min-h-screen pt-24 pb-12 bg-gray-100">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
-            {!editing && (
-              <button 
-                onClick={() => setEditing(true)}
-                className="bg-[#2563eb] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
-              >
-                Edit Profile
-              </button>
-            )}
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold text-gray-900">My Wishlist</h1>
+            <p className="text-gray-600">{wishlist.products.length} items</p>
           </div>
-
-          <div className="bg-white rounded-lg shadow-md p-8">
-            {editing ? (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                    />
-                  </div>
-                </div>
-
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Address</h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
-                      <input
-                        type="text"
-                        value={formData.address.street}
-                        onChange={(e) => setFormData({...formData, address: {...formData.address, street: e.target.value}})}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {wishlist.products.map((product) => (
+              <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-shadow">
+                <Link href={`/product/${product._id}`}>
+                  <div className="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={product.images[0].url} 
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                      <input
-                        type="text"
-                        value={formData.address.city}
-                        onChange={(e) => setFormData({...formData, address: {...formData.address, city: e.target.value}})}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                      <input
-                        type="text"
-                        value={formData.address.state}
-                        onChange={(e) => setFormData({...formData, address: {...formData.address, state: e.target.value}})}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                      <input
-                        type="text"
-                        value={formData.address.country}
-                        onChange={(e) => setFormData({...formData, address: {...formData.address, country: e.target.value}})}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
-                      <input
-                        type="text"
-                        value={formData.address.zipCode}
-                        onChange={(e) => setFormData({...formData, address: {...formData.address, zipCode: e.target.value}})}
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2563eb]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="bg-[#2563eb] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50"
-                  >
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(false)}
-                    className="border border-gray-300 px-6 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                  <p className="text-lg text-gray-900">{profile?.name}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p className="text-lg text-gray-900">{profile?.email}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Phone</h3>
-                  <p className="text-lg text-gray-900">{profile?.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Address</h3>
-                  <p className="text-lg text-gray-900">
-                    {profile?.address?.street ? (
-                      <>
-                        {profile.address.street}<br />
-                        {profile.address.city}, {profile.address.state} {profile.address.zipCode}<br />
-                        {profile.address.country}
-                      </>
                     ) : (
-                      'Not provided'
+                      <span className="text-gray-400">No Image</span>
                     )}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Account Status</h3>
-                  <p className="text-lg text-gray-900">
-                    {profile?.isVerified ? (
-                      <span className="text-green-600">✓ Verified</span>
-                    ) : (
-                      <span className="text-yellow-600">⚠ Not Verified</span>
-                    )}
-                  </p>
+                  </div>
+                </Link>
+                
+                <div className="p-4">
+                  <Link href={`/product/${product._id}`}>
+                    <h3 className="font-bold text-lg mb-2 hover:text-[#2563eb] transition-colors line-clamp-2">
+                      {product.name}
+                    </h3>
+                  </Link>
+                  <p className="text-gray-600 mb-2 text-sm line-clamp-2">{product.description}</p>
+                  <p className="text-[#2563eb] font-bold text-xl mb-4">£{product.price.toFixed(2)}</p>
+                  
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleAddToCart(product._id)}
+                      disabled={product.stock === 0}
+                      className="flex-1 bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+                    <button 
+                      onClick={() => handleRemove(product._id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>

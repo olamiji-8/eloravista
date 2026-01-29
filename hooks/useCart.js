@@ -1,10 +1,12 @@
 // hooks/useCart.js
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartAPI } from '@/lib/api/cart';
 
-export const useCart = () => {
+const CartContext = createContext(null);
+
+export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -86,7 +88,7 @@ export const useCart = () => {
     fetchCart();
   }, []);
 
-  return {
+  const value = {
     cart,
     loading,
     error,
@@ -98,4 +100,14 @@ export const useCart = () => {
     totalItems: cart?.totalItems || 0,
     totalPrice: cart?.totalPrice || 0,
   };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+};
+
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) {
+    throw new Error('useCart must be used within CartProvider');
+  }
+  return ctx;
 };
