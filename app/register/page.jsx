@@ -22,9 +22,12 @@ export default function RegisterPage() {
     try {
       await register(formData);
       alert('Registration successful! Please check your email to verify your account.');
-      router.push('/');
+      // Wait a moment for state to update, then redirect
+      setTimeout(() => {
+        router.push('/');
+      }, 100);
     } catch (err) {
-      console.error('Registration failed');
+      console.error('Registration failed:', err);
     }
   };
 
@@ -77,6 +80,7 @@ export default function RegisterPage() {
                 placeholder="John Doe"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -93,6 +97,7 @@ export default function RegisterPage() {
                 placeholder="you@example.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -108,6 +113,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 placeholder="+234 xxx xxx xxxx"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
+                disabled={loading}
               />
             </div>
 
@@ -125,6 +131,7 @@ export default function RegisterPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
                 required
                 minLength="6"
+                disabled={loading}
               />
               <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
             </div>
