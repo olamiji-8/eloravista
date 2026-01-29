@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { paymentAPI } from '@/lib/api/payment';
 import { ordersAPI } from '@/lib/api/orders';
 import { useCart } from '@/hooks/useCart';
 
-export default function PaystackVerifyPage() {
+// Separate component that uses useSearchParams
+function VerificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { clearCart } = useCart();
@@ -172,5 +173,31 @@ export default function PaystackVerifyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function VerificationLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Loading...
+          </h2>
+          <p className="text-gray-600">Please wait</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function PaystackVerifyPage() {
+  return (
+    <Suspense fallback={<VerificationLoading />}>
+      <VerificationContent />
+    </Suspense>
   );
 }
