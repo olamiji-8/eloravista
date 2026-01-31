@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { productsAPI } from '@/lib/api/products';
 import { useCart } from '@/hooks/useCart';
+import Link from 'next/link';
 
 export default function DrinkwarePage() {
   const [products, setProducts] = useState([]);
@@ -48,7 +49,7 @@ export default function DrinkwarePage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#1e40af] to-[#3b82f6] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Drinkware</h1>
@@ -60,7 +61,7 @@ export default function DrinkwarePage() {
       </section>
 
       {/* Products Grid */}
-      <section className="bg-[#ecfeff] py-20">
+      <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
             <p className="text-gray-600 text-lg">
@@ -68,7 +69,7 @@ export default function DrinkwarePage() {
             </p>
             <div className="flex gap-4">
               <select 
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
@@ -98,32 +99,36 @@ export default function DrinkwarePage() {
             ) : products.length > 0 ? (
               products.map((product) => (
                 <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
-                  <div className="relative h-72 bg-gray-200 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
-                      <img 
-                        src={product.images[0].url} 
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        Product Image
-                      </div>
-                    )}
-                    <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  </div>
+                  <Link href={`/product/${product._id}`}>
+                    <div className="relative h-72 bg-gray-200 overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <img 
+                          src={product.images[0].url} 
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          Product Image
+                        </div>
+                      )}
+                      <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </Link>
                   <div className="p-5">
-                    <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
+                    <Link href={`/product/${product._id}`}>
+                      <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                    </Link>
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-[#2563eb] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+                        className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                       >
                         Add to Cart
                       </button>
@@ -139,15 +144,66 @@ export default function DrinkwarePage() {
           </div>
 
           <div className="flex justify-center items-center gap-2 mt-12">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Previous
             </button>
-            <button className="px-4 py-2 bg-[#2563eb] text-white rounded-lg font-bold cursor-pointer">1</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">2</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">3</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg font-bold cursor-pointer">1</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">2</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">3</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Next
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Our Drinkware Section - Before Footer */}
+      <section className="bg-[#0F2252] py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-bold text-white mb-4">Sip in Style</h2>
+            <div className="w-24 h-1 bg-white mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Durable & Safe</h3>
+              <p className="text-white/80 leading-relaxed">
+                Made from food-grade materials that are BPA-free and designed to last through daily use.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Temperature Control</h3>
+              <p className="text-white/80 leading-relaxed">
+                Keep your drinks hot or cold for hours with our insulated drinkware technology.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Stylish Designs</h3>
+              <p className="text-white/80 leading-relaxed">
+                From minimalist elegance to bold statements, find drinkware that matches your personality.
+              </p>
+            </div>
           </div>
         </div>
       </section>

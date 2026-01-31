@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { productsAPI } from '@/lib/api/products';
 import { useCart } from '@/hooks/useCart';
+import Link from 'next/link';
 
 // Skeleton Loader Component
 const ProductSkeleton = () => (
@@ -74,7 +75,7 @@ export default function StorePage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#1e40af] via-[#2563eb] to-[#3b82f6] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Store</h1>
@@ -86,7 +87,7 @@ export default function StorePage() {
       </section>
 
       {/* Products Section */}
-      <section className="bg-[#ecfeff] py-20">
+      <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6">
           {/* Filter/Sort Bar */}
           <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
@@ -99,7 +100,7 @@ export default function StorePage() {
             </p>
             <div className="flex gap-4">
               <select 
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value);
@@ -113,7 +114,7 @@ export default function StorePage() {
                 <option>Home & Baby</option>
               </select>
               <select 
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={sort}
                 onChange={(e) => {
                   setSort(e.target.value);
@@ -137,32 +138,36 @@ export default function StorePage() {
             ) : products.length > 0 ? (
               products.map((product) => (
                 <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
-                  <div className="relative h-72 bg-gray-200 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
-                      <img 
-                        src={product.images[0].url} 
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <span className="text-sm">{product.category}</span>
-                      </div>
-                    )}
-                    <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  </div>
+                  <Link href={`/product/${product._id}`}>
+                    <div className="relative h-72 bg-gray-200 overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <img 
+                          src={product.images[0].url} 
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <span className="text-sm">{product.category}</span>
+                        </div>
+                      )}
+                      <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </Link>
                   <div className="p-5">
-                    <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
+                    <Link href={`/product/${product._id}`}>
+                      <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                    </Link>
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-[#2563eb] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+                        className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                         disabled={product.stock === 0}
                       >
                         {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -184,7 +189,7 @@ export default function StorePage() {
               <button 
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
@@ -192,10 +197,10 @@ export default function StorePage() {
                 <button 
                   key={pageNum}
                   onClick={() => setPage(pageNum)}
-                  className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
+                  className={`px-4 py-2 rounded-lg font-bold cursor-pointer transition-colors ${
                     page === pageNum 
-                      ? 'bg-[#2563eb] text-white' 
-                      : 'border border-gray-300 hover:bg-gray-100'
+                      ? 'bg-[#0F2252] text-white' 
+                      : 'bg-[#0F2252] text-white hover:bg-[#1a3a7a]'
                   }`}
                 >
                   {pageNum}
@@ -204,12 +209,76 @@ export default function StorePage() {
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Why Shop With Us Section - Before Footer */}
+      <section className="bg-[#0F2252] py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-bold text-white mb-4">Why Shop With EloraVista?</h2>
+            <div className="w-24 h-1 bg-white mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-4 gap-8">
+            {/* Feature 1 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Global Sourcing</h3>
+              <p className="text-white/80 leading-relaxed">
+                Products sourced directly from trusted markets worldwide
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Quality Assured</h3>
+              <p className="text-white/80 leading-relaxed">
+                Every product is carefully inspected for quality standards
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Best Value</h3>
+              <p className="text-white/80 leading-relaxed">
+                Competitive prices without compromising on quality
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Fast Delivery</h3>
+              <p className="text-white/80 leading-relaxed">
+                Quick and reliable shipping to your doorstep
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

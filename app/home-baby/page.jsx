@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { productsAPI } from '@/lib/api/products';
 import { useCart } from '@/hooks/useCart';
+import Link from 'next/link';
 
 export default function HomeBabyPage() {
   const [products, setProducts] = useState([]);
@@ -48,7 +49,7 @@ export default function HomeBabyPage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#2563eb] via-[#3b82f6] to-[#60a5fa] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Home and Baby</h1>
@@ -60,7 +61,7 @@ export default function HomeBabyPage() {
       </section>
 
       {/* Products Grid */}
-      <section className="bg-[#ecfeff] py-20">
+      <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
             <p className="text-gray-600 text-lg">
@@ -68,7 +69,7 @@ export default function HomeBabyPage() {
             </p>
             <div className="flex gap-4">
               <select 
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
@@ -98,32 +99,36 @@ export default function HomeBabyPage() {
             ) : products.length > 0 ? (
               products.map((product) => (
                 <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
-                  <div className="relative h-72 bg-gray-200 overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
-                      <img 
-                        src={product.images[0].url} 
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        Product Image
-                      </div>
-                    )}
-                    <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                  </div>
+                  <Link href={`/product/${product._id}`}>
+                    <div className="relative h-72 bg-gray-200 overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <img 
+                          src={product.images[0].url} 
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          Product Image
+                        </div>
+                      )}
+                      <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </Link>
                   <div className="p-5">
-                    <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
+                    <Link href={`/product/${product._id}`}>
+                      <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                    </Link>
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-[#2563eb] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+                        className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                       >
                         Add to Cart
                       </button>
@@ -139,15 +144,66 @@ export default function HomeBabyPage() {
           </div>
 
           <div className="flex justify-center items-center gap-2 mt-12">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Previous
             </button>
-            <button className="px-4 py-2 bg-[#2563eb] text-white rounded-lg font-bold cursor-pointer">1</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">2</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">3</button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg font-bold cursor-pointer">1</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">2</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">3</button>
+            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Next
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Our Home & Baby Products Section - Before Footer */}
+      <section className="bg-[#0F2252] py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-bold text-white mb-4">Comfort & Care for Your Home</h2>
+            <div className="w-24 h-1 bg-white mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Home Essentials</h3>
+              <p className="text-white/80 leading-relaxed">
+                Quality home products that combine functionality with beautiful design for every room.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Baby Safe</h3>
+              <p className="text-white/80 leading-relaxed">
+                Non-toxic, baby-safe products tested for quality and safety to give you peace of mind.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="text-center text-white">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">Thoughtful Gifts</h3>
+              <p className="text-white/80 leading-relaxed">
+                Perfect for baby showers, housewarmings, and special occasions that matter.
+              </p>
+            </div>
           </div>
         </div>
       </section>
