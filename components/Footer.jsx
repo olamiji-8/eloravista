@@ -11,27 +11,27 @@ const Footer = () => {
             <h3 className="text-2xl font-bold mb-6 text-gray-900">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#home" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/home" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Home
                 </a>
               </li>
               <li>
-                <a href="#about" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                   About
                 </a>
               </li>
               <li>
-                <a href="#account" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/account" className="text-gray-600 hover:text-blue-600 transition-colors">
                   My Account
                 </a>
               </li>
               <li>
-                <a href="#cart" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/cart" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Cart
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Contact
                 </a>
               </li>
@@ -43,27 +43,27 @@ const Footer = () => {
             <h3 className="text-2xl font-bold mb-6 text-gray-900">Shop Categories</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#fashion" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/fashion" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Fashion
                 </a>
               </li>
               <li>
-                <a href="#accessories" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/accessories" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Accessories
                 </a>
               </li>
               <li>
-                <a href="#drinkware" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/drinkware" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Drinkware
                 </a>
               </li>
               <li>
-                <a href="#home-baby" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/home-baby" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Home and Baby
                 </a>
               </li>
               <li>
-                <a href="#general" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="/general" className="text-gray-600 hover:text-blue-600 transition-colors">
                   General
                 </a>
               </li>
@@ -79,12 +79,8 @@ const Footer = () => {
               </div>
               <span className="font-bold text-gray-900">ELORA VISTA</span>
             </div>
-            <a href="#" className="inline-block">
-              <img 
-                src="/google-play-badge.png" 
-                alt="Get it on Google Play" 
-                className="h-12"
-              />
+            <a href="/home" className="inline-block">
+             
               {/* If you don't have the image, use this div instead: */}
               <div className="bg-black text-white px-6 py-3 rounded-lg flex items-center gap-2">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">

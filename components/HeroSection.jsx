@@ -13,20 +13,24 @@ const HeroSection = () => {
             <p className="text-xl mb-8 leading-relaxed">
               We are a global lifestyle and trading brand, sourcing and delivering high-quality products from trusted international markets.
             </p>
-            <div className="flex gap-4">
-<button className="bg-white text-blue-900 px-8 py-3 font-bold hover:bg-gray-100 transition-colors cursor-pointer">
-  SHOP NOW
-</button>
-<button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-blue-900 transition-colors cursor-pointer">
-  LEARN
-</button>
+            <div className="flex gap-4 items-center">
+              <a href="/store" className="inline-block">
+                <button className="bg-white text-blue-900 px-8 py-3 font-bold hover:bg-gray-100 transition-colors cursor-pointer border-2 border-white">
+                  SHOP NOW
+                </button>
+              </a>
+              <a href="/about" className="inline-block">
+                <button className="border-2 border-white text-white px-8 py-3 font-bold hover:bg-white hover:text-blue-900 transition-colors cursor-pointer">
+                  LEARN
+                </button>
+              </a>
             </div>
           </div>
           
           {/* Image Placeholder */}
           <div className="relative h-96">
             {/* Replace this div with your hero image */}
-       <div className="w-full h-full bg-[#233e89] rounded-lg flex items-center justify-center shadow-xl">
+            <div className="w-full h-full bg-[#233e89] rounded-lg flex items-center justify-center shadow-xl">
               <img 
                 src="/banner.jpg" 
                 alt="Hero" 

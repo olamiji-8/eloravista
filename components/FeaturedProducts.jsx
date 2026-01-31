@@ -37,11 +37,11 @@ export default function FeaturedProducts() {
 
   if (loading) {
     return (
-      <section className="bg-[#ecfeff] py-20">
+      <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <div className="w-24 h-1 bg-[#2563eb] mx-auto"></div>
+            <h2 className="text-5xl font-bold text-[#0F2252] mb-4">Featured Products</h2>
+            <div className="w-24 h-1 bg-[#0F2252] mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map((item) => (
@@ -61,11 +61,11 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="bg-[#ecfeff] py-20">
+    <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-5xl font-bold text-gray-900 mb-4">Featured Products</h2>
-          <div className="w-24 h-1 bg-[#2563eb] mx-auto"></div>
+          <h2 className="text-5xl font-bold text-[#0F2252] mb-4">Featured Products</h2>
+          <div className="w-24 h-1 bg-[#0F2252] mx-auto"></div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -86,14 +86,14 @@ export default function FeaturedProducts() {
               </Link>
               <div className="p-4">
                 <Link href={`/product/${product._id}`}>
-                  <h3 className="font-bold text-lg mb-2 hover:text-[#2563eb] transition-colors">{product.name}</h3>
+                  <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
                 </Link>
                 <p className="text-gray-600 mb-2 text-sm line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between mt-4">
-                  <p className="text-[#2563eb] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                  <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
                   <button 
                     onClick={() => handleAddToCart(product._id)}
-                    className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors cursor-pointer"
+                    className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                     disabled={product.stock === 0}
                   >
                     {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -107,7 +107,7 @@ export default function FeaturedProducts() {
         <div className="text-center mt-12">
           <Link 
             href="/store"
-            className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+            className="inline-block bg-[#0F2252] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1a3a7a] transition-colors"
           >
             View All Products
           </Link>
