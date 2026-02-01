@@ -31,6 +31,7 @@ export default function StorePage() {
   const [sort, setSort] = useState('-createdAt');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [addingToCart, setAddingToCart] = useState({});
   
   const { addToCart } = useCart();
 
@@ -62,11 +63,20 @@ export default function StorePage() {
   };
 
   const handleAddToCart = async (productId) => {
+    // Prevent multiple clicks
+    if (addingToCart[productId]) return;
+    
+    setAddingToCart(prev => ({ ...prev, [productId]: true }));
+    
     try {
       await addToCart(productId, 1);
+      // Success feedback
       alert('Added to cart!');
     } catch (error) {
+      console.error('Add to cart error:', error);
       alert('Please login to add items to cart');
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -167,10 +177,10 @@ export default function StorePage() {
                       <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
-                        disabled={product.stock === 0}
+                        className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={product.stock === 0 || addingToCart[product._id]}
                       >
-                        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                       </button>
                     </div>
                   </div>
@@ -200,7 +210,7 @@ export default function StorePage() {
                   className={`px-4 py-2 rounded-lg font-bold cursor-pointer transition-colors ${
                     page === pageNum 
                       ? 'bg-[#233e89] text-white' 
-                      : 'bg-[#233e89] text-white hover:bg-[#1a3a7a]'
+                      : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
                   }`}
                 >
                   {pageNum}

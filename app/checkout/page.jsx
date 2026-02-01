@@ -8,15 +8,21 @@ import { paymentAPI } from '@/lib/api/payment';
 import { ordersAPI } from '@/lib/api/orders';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   return (
-    <Elements stripe={stripePromise}>
-      <CheckoutContent />
-    </Elements>
+    <>
+      <Navigation />
+      <Elements stripe={stripePromise}>
+        <CheckoutContent />
+      </Elements>
+      <Footer />
+    </>
   );
 }
 
@@ -221,14 +227,14 @@ function CheckoutContent() {
 
   if (!cart || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center pt-24">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#233e89]"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Progress Steps */}
         <div className="mb-8">
@@ -238,7 +244,7 @@ function CheckoutContent() {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                     step >= num
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-[#233e89] text-white'
                       : 'bg-gray-300 text-gray-600'
                   }`}
                 >
@@ -247,7 +253,7 @@ function CheckoutContent() {
                 {num < 3 && (
                   <div
                     className={`w-24 h-1 ${
-                      step > num ? 'bg-blue-600' : 'bg-gray-300'
+                      step > num ? 'bg-[#233e89]' : 'bg-gray-300'
                     }`}
                   ></div>
                 )}
@@ -255,13 +261,13 @@ function CheckoutContent() {
             ))}
           </div>
           <div className="flex justify-center mt-2 space-x-20 text-sm">
-            <span className={step >= 1 ? 'text-blue-600 font-semibold' : 'text-gray-500'}>
+            <span className={step >= 1 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>
               Shipping
             </span>
-            <span className={step >= 2 ? 'text-blue-600 font-semibold' : 'text-gray-500'}>
+            <span className={step >= 2 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>
               Payment Method
             </span>
-            <span className={step >= 3 ? 'text-blue-600 font-semibold' : 'text-gray-500'}>
+            <span className={step >= 3 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>
               Payment
             </span>
           </div>
@@ -274,7 +280,7 @@ function CheckoutContent() {
               {/* Step 1: Shipping Address */}
               {step === 1 && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Shipping Address</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Shipping Address</h2>
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -286,7 +292,7 @@ function CheckoutContent() {
                     className="space-y-4"
                   >
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
                         Street Address
                       </label>
                       <input
@@ -294,14 +300,14 @@ function CheckoutContent() {
                         name="street"
                         value={shippingAddress.street}
                         onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                         required
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-900 mb-1">
                           City
                         </label>
                         <input
@@ -309,13 +315,13 @@ function CheckoutContent() {
                           name="city"
                           value={shippingAddress.city}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-900 mb-1">
                           State/Province
                         </label>
                         <input
@@ -323,7 +329,7 @@ function CheckoutContent() {
                           name="state"
                           value={shippingAddress.state}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                           required
                         />
                       </div>
@@ -331,7 +337,7 @@ function CheckoutContent() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-900 mb-1">
                           Country
                         </label>
                         <input
@@ -339,13 +345,13 @@ function CheckoutContent() {
                           name="country"
                           value={shippingAddress.country}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-900 mb-1">
                           Postal Code
                         </label>
                         <input
@@ -353,14 +359,14 @@ function CheckoutContent() {
                           name="zipCode"
                           value={shippingAddress.zipCode}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                           required
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
                         Phone Number
                       </label>
                       <input
@@ -368,7 +374,7 @@ function CheckoutContent() {
                         name="phone"
                         value={shippingAddress.phone}
                         onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
                         required
                       />
                     </div>
@@ -381,7 +387,7 @@ function CheckoutContent() {
 
                     <button
                       type="submit"
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                      className="w-full bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
                     >
                       Continue to Payment Method
                     </button>
@@ -392,15 +398,15 @@ function CheckoutContent() {
               {/* Step 2: Payment Method */}
               {step === 2 && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Select Payment Method</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Select Payment Method</h2>
 
                   <div className="space-y-4">
                     {/* Stripe Option */}
                     <label
                       className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition ${
                         paymentMethod === 'stripe'
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-300 hover:border-blue-300'
+                          ? 'border-[#233e89] bg-blue-50'
+                          : 'border-gray-300 hover:border-[#233e89]'
                       }`}
                     >
                       <input
@@ -409,10 +415,10 @@ function CheckoutContent() {
                         value="stripe"
                         checked={paymentMethod === 'stripe'}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-[#233e89]"
                       />
                       <div className="ml-4 flex-1">
-                        <div className="font-semibold">Credit/Debit Card (Stripe)</div>
+                        <div className="font-semibold text-gray-900">Credit/Debit Card (Stripe)</div>
                         <div className="text-sm text-gray-600">
                           Pay securely with your credit or debit card
                         </div>
@@ -429,8 +435,8 @@ function CheckoutContent() {
                     <label
                       className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition ${
                         paymentMethod === 'paystack'
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-300 hover:border-blue-300'
+                          ? 'border-[#233e89] bg-blue-50'
+                          : 'border-gray-300 hover:border-[#233e89]'
                       }`}
                     >
                       <input
@@ -439,10 +445,10 @@ function CheckoutContent() {
                         value="paystack"
                         checked={paymentMethod === 'paystack'}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-[#233e89]"
                       />
                       <div className="ml-4 flex-1">
-                        <div className="font-semibold">Paystack</div>
+                        <div className="font-semibold text-gray-900">Paystack</div>
                         <div className="text-sm text-gray-600">
                           Pay with card, bank transfer, or mobile money
                         </div>
@@ -459,13 +465,13 @@ function CheckoutContent() {
                   <div className="flex gap-4 mt-6">
                     <button
                       onClick={() => setStep(1)}
-                      className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                      className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
                     >
                       Back
                     </button>
                     <button
                       onClick={() => setStep(3)}
-                      className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                      className="flex-1 bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
                     >
                       Continue to Payment
                     </button>
@@ -476,12 +482,12 @@ function CheckoutContent() {
               {/* Step 3: Payment */}
               {step === 3 && (
                 <div>
-                  <h2 className="text-2xl font-bold mb-6">Complete Payment</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Complete Payment</h2>
 
                   <form onSubmit={handlePayment}>
                     {paymentMethod === 'stripe' && (
                       <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-900 mb-2">
                           Card Details
                         </label>
                         <div className="p-4 border border-gray-300 rounded-lg">
@@ -502,7 +508,7 @@ function CheckoutContent() {
                             }}
                           />
                         </div>
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-sm text-gray-600 mt-2">
                           Your payment information is secure and encrypted
                         </p>
                       </div>
@@ -527,14 +533,14 @@ function CheckoutContent() {
                         type="button"
                         onClick={() => setStep(2)}
                         disabled={loading}
-                        className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50"
+                        className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
                         disabled={loading || (paymentMethod === 'stripe' && !stripe)}
-                        className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? (
                           <span className="flex items-center justify-center">
@@ -558,7 +564,7 @@ function CheckoutContent() {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-              <h3 className="text-xl font-bold mb-4">Order Summary</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h3>
 
               <div className="space-y-4 mb-6">
                 {cart.items?.map((item) => (
@@ -569,11 +575,11 @@ function CheckoutContent() {
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-sm">{item.product.name}</h4>
+                      <h4 className="font-semibold text-sm text-gray-900">{item.product.name}</h4>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">
+                      <p className="font-semibold text-gray-900">
                         £{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -584,21 +590,21 @@ function CheckoutContent() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">£{itemsPrice.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">£{itemsPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-gray-900">
                     {shippingPrice === 0 ? 'Free' : `£${shippingPrice.toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax (20%)</span>
-                  <span className="font-semibold">£{taxPrice.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">£{taxPrice.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span className="text-blue-600">£{totalPrice.toFixed(2)}</span>
+                  <span className="text-gray-900">Total</span>
+                  <span className="text-[#233e89]">£{totalPrice.toFixed(2)}</span>
                 </div>
               </div>
             </div>

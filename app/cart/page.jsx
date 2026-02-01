@@ -70,7 +70,7 @@ export default function CartPage() {
             <p className="text-gray-600 mb-8">Start shopping to add items to your cart</p>
             <Link 
               href="/store"
-              className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+              className="inline-block bg-[#233e89] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
             >
               Continue Shopping
             </Link>
@@ -102,7 +102,7 @@ export default function CartPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <div className="w-full h-full flex items-center justify-center text-black">
                           No Image
                         </div>
                       )}
@@ -111,7 +111,7 @@ export default function CartPage() {
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900">{item.product.name}</h3>
                       <p className="text-gray-600 text-sm mb-2">{item.product.category}</p>
-                      <p className="text-[#2563eb] font-bold text-xl">£{item.price.toFixed(2)}</p>
+                      <p className="text-[#233e89] font-bold text-xl">£{item.price.toFixed(2)}</p>
                     </div>
                     
                     <div className="flex flex-col items-end justify-between">
@@ -122,17 +122,17 @@ export default function CartPage() {
                         <Trash2 className="w-5 h-5" />
                       </button>
                       
-                      <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                      <div className="flex items-center gap-2 bg-[#233e89] rounded-lg p-1">
                         <button 
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity, -1)}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          className="p-1  rounded transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="px-3 font-semibold">{item.quantity}</span>
                         <button 
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity, 1)}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          className="p-1  rounded transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -157,22 +157,22 @@ export default function CartPage() {
                     <span>Shipping</span>
                     <span>Calculated at checkout</span>
                   </div>
-                  <div className="border-t pt-3 flex justify-between font-bold text-lg">
+                  <div className="border-t pt-3 flex justify-between font-bold text-lg text-gray-900">
                     <span>Total</span>
-                    <span className="text-[#2563eb]">£{totalPrice.toFixed(2)}</span>
+                    <span className="text-[#233e89]">£{totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
                 
                 <button 
                   onClick={() => router.push('/checkout')}
-                  className="w-full bg-[#2563eb] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors mb-3"
+                  className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors mb-3"
                 >
                   Proceed to Checkout
                 </button>
                 
                 <Link 
                   href="/store"
-                  className="block text-center text-[#2563eb] hover:text-[#1d4ed8] font-semibold"
+                  className="block text-center text-[#233e89] hover:text-[#1d4ed8] font-semibold"
                 >
                   Continue Shopping
                 </Link>

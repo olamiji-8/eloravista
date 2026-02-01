@@ -20,6 +20,8 @@ export const CartProvider = ({ children }) => {
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch cart');
       console.error(err);
+      // Set empty cart on error (user might not be logged in)
+      setCart({ items: [], totalPrice: 0, totalItems: 0 });
     } finally {
       setLoading(false);
     }
@@ -31,6 +33,8 @@ export const CartProvider = ({ children }) => {
       setError(null);
       const data = await cartAPI.addToCart(productId, quantity);
       setCart(data.data);
+      // Force refresh to ensure count updates
+      await fetchCart();
       return data;
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to add to cart');
@@ -75,7 +79,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       await cartAPI.clearCart();
-      setCart(null);
+      setCart({ items: [], totalPrice: 0, totalItems: 0 });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to clear cart');
       throw err;
@@ -88,6 +92,10 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
+  // Calculate totals from cart items if API doesn't provide them
+  const totalItems = cart?.totalItems || cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalPrice = cart?.totalPrice || cart?.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+
   const value = {
     cart,
     loading,
@@ -97,8 +105,8 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     clearCart,
     refreshCart: fetchCart,
-    totalItems: cart?.totalItems || 0,
-    totalPrice: cart?.totalPrice || 0,
+    totalItems,
+    totalPrice,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
