@@ -87,7 +87,7 @@ export default function OrdersPage() {
             <p className="text-gray-600 mb-8">Start shopping to place your first order</p>
             <Link 
               href="/store"
-              className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+              className="inline-block bg-[#233e89] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
             >
               Continue Shopping
             </Link>
@@ -141,7 +141,7 @@ export default function OrdersPage() {
                     
                     <Link 
                       href={`/orders/${order._id}`}
-                      className="bg-[#2563eb] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#1d4ed8] transition-colors flex items-center gap-2 self-start lg:self-center"
+                      className="bg-[#233e89] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#1d4ed8] transition-colors flex items-center gap-2 self-start lg:self-center"
                     >
                       View Details
                       <ChevronRight className="w-4 h-4" />

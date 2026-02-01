@@ -10,7 +10,7 @@ export default function AboutPage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-[#233e89] to-[#1a3a7a] pt-32 pb-20 overflow-hidden">
         <div className="relative max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-6xl font-bold text-white mb-4">About Us</h1>
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
@@ -25,8 +25,8 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div>
-              <div className="w-16 h-1 bg-[#0F2252] mb-6"></div>
-              <h2 className="text-4xl font-bold text-[#0F2252] mb-6">
+              <div className="w-16 h-1 bg-[#233e89] mb-6"></div>
+              <h2 className="text-4xl font-bold text-[#233e89] mb-6">
                 Who We Are
               </h2>
               <p className="text-gray-600 mb-4 leading-relaxed">
@@ -56,9 +56,9 @@ export default function AboutPage() {
       <section className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-[#0F2252] font-semibold mb-2">A Few Words About</p>
-            <h2 className="text-5xl font-bold text-[#0F2252] mb-4">Our Team</h2>
-            <div className="w-24 h-1 bg-[#0F2252] mx-auto mb-6"></div>
+            <p className="text-[#233e89] font-semibold mb-2">A Few Words About</p>
+            <h2 className="text-5xl font-bold text-[#233e89] mb-4">Our Team</h2>
+            <div className="w-24 h-1 bg-[#233e89] mx-auto mb-6"></div>
             <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Behind every great product is a dedicated team. We are a group of passionate creatives, product curators, and customer-care specialists working together to bring you quality items you can trust.
             </p>
@@ -67,14 +67,14 @@ export default function AboutPage() {
           {/* Team Member */}
           <div className="flex justify-center">
             <div className="bg-white rounded-lg p-8 max-w-sm text-center shadow-lg">
-              <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-[#0F2252]">
+              <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-[#233e89]">
                 <img 
                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop" 
                   alt="Elizabeth Taiwo" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h3 className="text-2xl font-bold text-[#0F2252] mb-2">Elizabeth Taiwo</h3>
+              <h3 className="text-2xl font-bold text-[#233e89] mb-2">Elizabeth Taiwo</h3>
               <p className="text-gray-600">Founder - CEO</p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function AboutPage() {
       </section>
 
       {/* Follow Us Section */}
-      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-[#0F2252] to-[#1a3a7a]">
+      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-[#233e89] to-[#1a3a7a]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 items-center">
             {/* Left Image */}
@@ -101,25 +101,25 @@ export default function AboutPage() {
               <div className="flex justify-center gap-6">
                 <a 
                   href="#" 
-                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0F2252] transition-all"
+                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#233e89] transition-all"
                 >
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0F2252] transition-all"
+                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#233e89] transition-all"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0F2252] transition-all"
+                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#233e89] transition-all"
                 >
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a 
                   href="#" 
-                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0F2252] transition-all"
+                  className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#233e89] transition-all"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z"/>

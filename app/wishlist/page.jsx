@@ -94,7 +94,7 @@ export default function WishlistPage() {
             <p className="text-gray-600 mb-8">Save your favorite items here</p>
             <Link 
               href="/store"
-              className="inline-block bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
+              className="inline-block bg-[#233e89] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors"
             >
               Continue Shopping
             </Link>
@@ -134,18 +134,18 @@ export default function WishlistPage() {
                 
                 <div className="p-4">
                   <Link href={`/product/${product._id}`}>
-                    <h3 className="font-bold text-lg mb-2 hover:text-[#2563eb] transition-colors line-clamp-2">
+                    <h3 className="font-bold text-lg mb-2 hover:text-[#233e89] transition-colors line-clamp-2">
                       {product.name}
                     </h3>
                   </Link>
                   <p className="text-gray-600 mb-2 text-sm line-clamp-2">{product.description}</p>
-                  <p className="text-[#2563eb] font-bold text-xl mb-4">£{product.price.toFixed(2)}</p>
+                  <p className="text-[#233e89] font-bold text-xl mb-4">£{product.price.toFixed(2)}</p>
                   
                   <div className="flex gap-2">
                     <button 
                       onClick={() => handleAddToCart(product._id)}
                       disabled={product.stock === 0}
-                      className="flex-1 bg-[#2563eb] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}

@@ -49,7 +49,7 @@ export default function FashionPage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#233e89] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Fashion</h1>
@@ -70,7 +70,7 @@ export default function FashionPage() {
             </p>
             <div className="flex gap-4">
               <select 
-                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
+                className="px-4 py-2 bg-[#233e89] text-white border border-[#233e89] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
@@ -123,14 +123,14 @@ export default function FashionPage() {
                   </Link>
                   <div className="p-5">
                     <Link href={`/product/${product._id}`}>
-                      <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                      <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
                     </Link>
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
+                        className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                       >
                         Add to Cart
                       </button>
@@ -147,13 +147,13 @@ export default function FashionPage() {
 
           {/* Pagination */}
           <div className="flex justify-center items-center gap-2 mt-12">
-            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Previous
             </button>
-            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg font-bold cursor-pointer">1</button>
-            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">2</button>
-            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">3</button>
-            <button className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
+            <button className="px-4 py-2 bg-[#233e89] text-white rounded-lg font-bold cursor-pointer">1</button>
+            <button className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">2</button>
+            <button className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">3</button>
+            <button className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer">
               Next
             </button>
           </div>
@@ -161,7 +161,7 @@ export default function FashionPage() {
       </section>
 
       {/* Why Choose Us Section - Before Footer */}
-      <section className="bg-[#0F2252] py-20">
+      <section className="bg-[#233e89] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-5xl font-bold text-white mb-4">Why Choose EloraVista Fashion?</h2>

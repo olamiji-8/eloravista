@@ -75,7 +75,7 @@ export default function StorePage() {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-[#0F2252] to-[#1a3a7a] pt-32 pb-20">
+      <section className="relative bg-gradient-to-r from-[#233e89] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
             <h1 className="text-6xl font-bold">Store</h1>
@@ -100,7 +100,7 @@ export default function StorePage() {
             </p>
             <div className="flex gap-4">
               <select 
-                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
+                className="px-4 py-2 bg-[#233e89] text-white border border-[#233e89] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value);
@@ -114,7 +114,7 @@ export default function StorePage() {
                 <option>Home & Baby</option>
               </select>
               <select 
-                className="px-4 py-2 bg-[#0F2252] text-white border border-[#0F2252] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
+                className="px-4 py-2 bg-[#233e89] text-white border border-[#233e89] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
                 value={sort}
                 onChange={(e) => {
                   setSort(e.target.value);
@@ -160,14 +160,14 @@ export default function StorePage() {
                   </Link>
                   <div className="p-5">
                     <Link href={`/product/${product._id}`}>
-                      <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                      <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
                     </Link>
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                      <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
                       <button 
                         onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
+                        className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                         disabled={product.stock === 0}
                       >
                         {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -189,7 +189,7 @@ export default function StorePage() {
               <button 
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
@@ -199,8 +199,8 @@ export default function StorePage() {
                   onClick={() => setPage(pageNum)}
                   className={`px-4 py-2 rounded-lg font-bold cursor-pointer transition-colors ${
                     page === pageNum 
-                      ? 'bg-[#0F2252] text-white' 
-                      : 'bg-[#0F2252] text-white hover:bg-[#1a3a7a]'
+                      ? 'bg-[#233e89] text-white' 
+                      : 'bg-[#233e89] text-white hover:bg-[#1a3a7a]'
                   }`}
                 >
                   {pageNum}
@@ -209,7 +209,7 @@ export default function StorePage() {
               <button 
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-4 py-2 bg-[#0F2252] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#233e89] text-white rounded-lg hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -219,7 +219,7 @@ export default function StorePage() {
       </section>
 
       {/* Why Shop With Us Section - Before Footer */}
-      <section className="bg-[#0F2252] py-20">
+      <section className="bg-[#233e89] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-5xl font-bold text-white mb-4">Why Shop With EloraVista?</h2>

@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#1e40af] to-[#3b82f6] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#233e89] to-[#233e89] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Logo */}
@@ -111,7 +111,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#2563eb] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
@@ -120,7 +120,7 @@ export default function LoginPage() {
           {/* Register Link */}
           <p className="text-center mt-6 text-sm text-gray-600">
             Do not have an account?{' '}
-            <Link href="/register" className="text-[#2563eb] font-semibold hover:text-[#1d4ed8]">
+            <Link href="/register" className="text-[#233e89] font-semibold hover:text-[#1d4ed8]">
               Create Account
             </Link>
           </p>
