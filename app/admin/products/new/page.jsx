@@ -102,7 +102,7 @@ export default function NewProductPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="bg-white rounded-lg shadow-md p-8 text-black">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -114,7 +114,7 @@ export default function NewProductPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter product name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-black"
                   required
                 />
               </div>

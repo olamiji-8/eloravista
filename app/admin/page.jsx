@@ -284,7 +284,7 @@ export default function AdminPage() {
             <div className="p-6">
               {/* Search Bar */}
               {activeTab !== 'overview' && (
-                <div className="mb-6 flex gap-4">
+                <div className="mb-6 flex gap-4 text-black">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
@@ -339,9 +339,9 @@ export default function AdminPage() {
                               )}
                             </div>
                           </td>
-                          <td className="py-3 px-4 font-medium">{product.name}</td>
-                          <td className="py-3 px-4">{product.category || 'N/A'}</td>
-                          <td className="py-3 px-4">£{product.price.toFixed(2)}</td>
+                          <td className="py-3 px-4 font-medium text-black">{product.name}</td>
+                          <td className="py-3 px-4 text-black">{product.category || 'N/A'}</td>
+                          <td className="py-3 px-4 text-black">£{product.price.toFixed(2)}</td>
                           <td className="py-3 px-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               product.stock > 10 ? 'bg-green-100 text-green-800' : 
@@ -389,7 +389,7 @@ export default function AdminPage() {
               {activeTab === 'orders' && (
                 <div className="space-y-4">
                   {filteredOrders.map((order) => (
-                    <div key={order._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={order._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow text-black">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                           <h3 className="font-bold text-lg mb-2">
@@ -452,8 +452,8 @@ export default function AdminPage() {
                     <tbody>
                       {filteredUsers.map((user) => (
                         <tr key={user._id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium">{user.name}</td>
-                          <td className="py-3 px-4">{user.email}</td>
+                          <td className="py-3 px-4 font-medium text-black">{user.name}</td>
+                          <td className="py-3 px-4 text-black">{user.email}</td>
                           <td className="py-3 px-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
