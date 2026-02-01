@@ -174,3 +174,116 @@ export const getMe = async (req, res) => {
     });
   }
 };
+
+// @desc    Forgot password
+// @route   POST /api/auth/forgot-password
+// @access  Public
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an email',
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No user found with that email',
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    // Set reset token and expiry
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+    await user.save();
+
+    // Create reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    const html = `
+      <h1>Password Reset Request</h1>
+      <p>You requested a password reset for your EloraVista account.</p>
+      <p>Please click the link below to reset your password:</p>
+      <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+      <p>This link expires in 1 hour.</p>
+      <p>If you didn't request a password reset, please ignore this email.</p>
+    `;
+
+    await sendEmail({
+      email: user.email,
+      subject: 'Password Reset Request - EloraVista',
+      html,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset email sent. Please check your email.',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Reset password
+// @route   PUT /api/auth/reset-password/:token
+// @access  Public
+export const resetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a new password',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long',
+      });
+    }
+
+    // Find user by reset token
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired reset token',
+      });
+    }
+
+    // Set new password
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful. You can now login with your new password.',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
