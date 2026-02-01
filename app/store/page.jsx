@@ -6,7 +6,9 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
 import { productsAPI } from '@/lib/api/products';
+import { wishlistAPI } from '@/lib/api/wishlist';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
 // Skeleton Loader Component
@@ -32,12 +34,21 @@ export default function StorePage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [addingToCart, setAddingToCart] = useState({});
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [togglingWishlist, setTogglingWishlist] = useState({});
   
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchProducts();
   }, [category, sort, page]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchWishlist();
+    }
+  }, [isAuthenticated]);
 
   const fetchProducts = async () => {
     try {
@@ -62,6 +73,18 @@ export default function StorePage() {
     }
   };
 
+  const fetchWishlist = async () => {
+    try {
+      const data = await wishlistAPI.getWishlist();
+      // Extract product IDs from wishlist
+      const productIds = data.data?.products?.map(p => p._id) || [];
+      setWishlistItems(productIds);
+    } catch (error) {
+      console.error('Failed to fetch wishlist:', error);
+      setWishlistItems([]);
+    }
+  };
+
   const handleAddToCart = async (productId) => {
     // Prevent multiple clicks
     if (addingToCart[productId]) return;
@@ -77,6 +100,37 @@ export default function StorePage() {
       alert('Please login to add items to cart');
     } finally {
       setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleToggleWishlist = async (productId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      alert('Please login to add items to wishlist');
+      return;
+    }
+
+    if (togglingWishlist[productId]) return;
+
+    setTogglingWishlist(prev => ({ ...prev, [productId]: true }));
+
+    try {
+      const isInWishlist = wishlistItems.includes(productId);
+      
+      if (isInWishlist) {
+        await wishlistAPI.removeFromWishlist(productId);
+        setWishlistItems(prev => prev.filter(id => id !== productId));
+      } else {
+        await wishlistAPI.addToWishlist(productId);
+        setWishlistItems(prev => [...prev, productId]);
+      }
+    } catch (error) {
+      console.error('Wishlist toggle error:', error);
+      alert('Failed to update wishlist');
+    } finally {
+      setTogglingWishlist(prev => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -146,46 +200,66 @@ export default function StorePage() {
                 <ProductSkeleton key={index} />
               ))
             ) : products.length > 0 ? (
-              products.map((product) => (
-                <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
-                  <Link href={`/product/${product._id}`}>
-                    <div className="relative h-72 bg-gray-200 overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
-                        <img 
-                          src={product.images[0].url} 
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <span className="text-sm">{product.category}</span>
-                        </div>
-                      )}
-                      <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </Link>
-                  <div className="p-5">
+              products.map((product) => {
+                const isInWishlist = wishlistItems.includes(product._id);
+                
+                return (
+                  <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
                     <Link href={`/product/${product._id}`}>
-                      <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                      <div className="relative h-72 bg-gray-200 overflow-hidden">
+                        {product.images && product.images.length > 0 ? (
+                          <img 
+                            src={product.images[0].url} 
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-sm">{product.category}</span>
+                          </div>
+                        )}
+                        <button 
+                          onClick={(e) => handleToggleWishlist(product._id, e)}
+                          disabled={togglingWishlist[product._id]}
+                          className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          <svg 
+                            className={`w-5 h-5 transition-colors ${
+                              isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-900'
+                            }`}
+                            fill={isInWishlist ? 'currentColor' : 'none'}
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={2} 
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </Link>
-                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
-                      <button 
-                        onClick={() => handleAddToCart(product._id)}
-                        className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={product.stock === 0 || addingToCart[product._id]}
-                      >
-                        {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                      </button>
+                    <div className="p-5">
+                      <Link href={`/product/${product._id}`}>
+                        <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                      </Link>
+                      <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                        <button 
+                          onClick={() => handleAddToCart(product._id)}
+                          className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={product.stock === 0 || addingToCart[product._id]}
+                        >
+                          {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="col-span-full text-center py-20">
                 <p className="text-gray-600 text-xl">No products found</p>

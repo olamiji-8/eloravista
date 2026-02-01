@@ -14,6 +14,7 @@ import { wishlistAPI } from '@/lib/api/wishlist';
 export default function WishlistPage() {
   const [wishlist, setWishlist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState({});
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function WishlistPage() {
     if (confirm('Remove this item from wishlist?')) {
       try {
         await wishlistAPI.removeFromWishlist(productId);
-        fetchWishlist();
+        await fetchWishlist();
       } catch (error) {
         alert('Failed to remove item');
       }
@@ -50,11 +51,18 @@ export default function WishlistPage() {
   };
 
   const handleAddToCart = async (productId) => {
+    if (addingToCart[productId]) return;
+
+    setAddingToCart(prev => ({ ...prev, [productId]: true }));
+
     try {
       await addToCart(productId, 1);
       alert('Added to cart!');
     } catch (error) {
+      console.error('Add to cart error:', error);
       alert('Failed to add to cart');
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -134,7 +142,7 @@ export default function WishlistPage() {
                 
                 <div className="p-4">
                   <Link href={`/product/${product._id}`}>
-                    <h3 className="font-bold text-lg mb-2 hover:text-[#233e89] transition-colors line-clamp-2">
+                    <h3 className="font-bold text-lg mb-2 text-gray-900 hover:text-[#233e89] transition-colors line-clamp-2">
                       {product.name}
                     </h3>
                   </Link>
@@ -144,15 +152,16 @@ export default function WishlistPage() {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => handleAddToCart(product._id)}
-                      disabled={product.stock === 0}
+                      disabled={product.stock === 0 || addingToCart[product._id]}
                       className="flex-1 bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <ShoppingCart className="w-4 h-4" />
-                      {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                      {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                     </button>
                     <button 
                       onClick={() => handleRemove(product._id)}
                       className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                      aria-label="Remove from wishlist"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
