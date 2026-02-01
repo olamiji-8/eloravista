@@ -165,13 +165,13 @@ export default function ProductDetailPage() {
         <div className="max-w-7xl mx-auto px-6">
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-[#233e89]">Home</Link>
+            <Link href="/" className="hover:text-[#233e89] cursor-pointer">Home</Link>
             <span>/</span>
-            <Link href="/store" className="hover:text-[#233e89]">Store</Link>
+            <Link href="/store" className="hover:text-[#233e89] cursor-pointer">Store</Link>
             <span>/</span>
             {product.category && (
               <>
-                <Link href={`/store?category=${product.category}`} className="hover:text-[#233e89]">
+                <Link href={`/store?category=${product.category}`} className="hover:text-[#233e89] cursor-pointer">
                   {product.category}
                 </Link>
                 <span>/</span>
@@ -197,13 +197,13 @@ export default function ProductDetailPage() {
                         <>
                           <button
                             onClick={() => handleImageNavigation('prev')}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors cursor-pointer"
                           >
                             <ChevronLeft className="w-6 h-6 text-gray-900" />
                           </button>
                           <button
                             onClick={() => handleImageNavigation('next')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-colors cursor-pointer"
                           >
                             <ChevronRight className="w-6 h-6 text-gray-900" />
                           </button>
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`relative bg-gray-200 rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`relative bg-gray-200 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                           selectedImage === index
                             ? 'border-[#233e89]'
                             : 'border-transparent hover:border-gray-300'
@@ -295,23 +295,23 @@ export default function ProductDetailPage() {
                   <div>
                     <label className="block font-semibold text-gray-900 mb-2">Quantity:</label>
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center border-2 border-gray-300 rounded-lg">
+                      <div className="flex items-center border-2 border-gray-900 rounded-lg">
                         <button
                           onClick={() => handleQuantityChange(-1)}
                           disabled={quantity <= 1}
-                          className="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
-                          <Minus className="w-5 h-5" />
+                          <Minus className="w-5 h-5 text-gray-900" />
                         </button>
-                        <span className="px-6 py-2 font-semibold text-lg border-x-2 border-gray-300">
+                        <span className="px-6 py-2 font-semibold text-lg border-x-2 border-gray-900 text-gray-900">
                           {quantity}
                         </span>
                         <button
                           onClick={() => handleQuantityChange(1)}
                           disabled={quantity >= product.stock}
-                          className="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
-                          <Plus className="w-5 h-5" />
+                          <Plus className="w-5 h-5 text-gray-900" />
                         </button>
                       </div>
                       <span className="text-gray-600">Max: {product.stock}</span>
@@ -324,7 +324,7 @@ export default function ProductDetailPage() {
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock === 0 || addingToCart}
-                    className="flex-1 bg-[#233e89] text-white px-6 py-4 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-[#233e89] text-white px-6 py-4 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     {addingToCart ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
@@ -332,7 +332,7 @@ export default function ProductDetailPage() {
                   <button
                     onClick={handleToggleWishlist}
                     disabled={togglingWishlist}
-                    className={`px-6 py-4 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 border-2 ${
+                    className={`px-6 py-4 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 border-2 cursor-pointer ${
                       isInWishlist
                         ? 'bg-red-50 border-red-500 text-red-600 hover:bg-red-100'
                         : 'bg-white border-gray-300 text-gray-900 hover:border-[#233e89] hover:text-[#233e89]'
@@ -365,7 +365,7 @@ export default function ProductDetailPage() {
                   <Link
                     key={relatedProduct._id}
                     href={`/product/${relatedProduct._id}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group cursor-pointer"
                   >
                     <div className="h-64 bg-gray-200 overflow-hidden">
                       {relatedProduct.images && relatedProduct.images.length > 0 ? (
