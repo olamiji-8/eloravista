@@ -17,25 +17,32 @@ import {
   Trash2, 
   Eye,
   Search,
-  Filter
+  Mail,
+  MessageSquare,
+  Calendar,
+  User
 } from 'lucide-react';
 import { productsAPI } from '@/lib/api/products';
 import { ordersAPI } from '@/lib/api/orders';
 import { usersAPI } from '@/lib/api/users';
+import { contactAPI } from '@/lib/api/contact';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
     totalUsers: 0,
     totalRevenue: 0,
+    totalContacts: 0,
   });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedContact, setSelectedContact] = useState(null);
   const { isAuthenticated, isAdmin } = useAuth();
   const router = useRouter();
 
@@ -54,15 +61,17 @@ export default function AdminPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [productsData, ordersData, usersData] = await Promise.all([
+      const [productsData, ordersData, usersData, contactsData] = await Promise.all([
         productsAPI.getProducts({ limit: 100 }),
         ordersAPI.getAllOrders(),
         usersAPI.getAllUsers(),
+        contactAPI.getAllContacts(),
       ]);
 
       setProducts(productsData.data);
       setOrders(ordersData.data);
       setUsers(usersData.data);
+      setContacts(contactsData.data);
 
       // Calculate stats
       const totalRevenue = ordersData.data.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
@@ -71,6 +80,7 @@ export default function AdminPage() {
         totalOrders: ordersData.data.length,
         totalUsers: usersData.data.length,
         totalRevenue,
+        totalContacts: contactsData.data.length,
       });
     } catch (error) {
       console.error('Failed to fetch admin data:', error);
@@ -128,6 +138,12 @@ export default function AdminPage() {
     u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredContacts = contacts.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <>
@@ -162,7 +178,7 @@ export default function AdminPage() {
           {/* Stats Overview */}
           {activeTab === 'overview' && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -202,12 +218,22 @@ export default function AdminPage() {
                   <h3 className="text-gray-600 text-sm font-medium mb-2">Total Revenue</h3>
                   <p className="text-3xl font-bold text-gray-900">£{stats.totalRevenue.toFixed(2)}</p>
                 </div>
+
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <Mail className="w-6 h-6 text-orange-600" />
+                    </div>
+                  </div>
+                  <h3 className="text-gray-600 text-sm font-medium mb-2">Contact Messages</h3>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalContacts}</p>
+                </div>
               </div>
 
               {/* Quick Actions */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <button
                     onClick={() => setActiveTab('products')}
                     className="bg-[#2563eb] text-white px-6 py-4 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2"
@@ -228,6 +254,13 @@ export default function AdminPage() {
                   >
                     <Users className="w-5 h-5" />
                     Manage Users
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('contacts')}
+                    className="bg-orange-600 text-white px-6 py-4 rounded-lg font-bold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Mail className="w-5 h-5" />
+                    View Messages
                   </button>
                 </div>
               </div>
@@ -277,6 +310,16 @@ export default function AdminPage() {
                   }`}
                 >
                   Users ({stats.totalUsers})
+                </button>
+                <button
+                  onClick={() => setActiveTab('contacts')}
+                  className={`px-6 py-4 font-semibold whitespace-nowrap ${
+                    activeTab === 'contacts'
+                      ? 'text-[#2563eb] border-b-2 border-[#2563eb]'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Contact Messages ({stats.totalContacts})
                 </button>
               </div>
             </div>
@@ -491,10 +534,147 @@ export default function AdminPage() {
                   )}
                 </div>
               )}
+
+              {/* Contacts Tab */}
+              {activeTab === 'contacts' && (
+                <div className="space-y-4">
+                  {filteredContacts.length > 0 ? (
+                    filteredContacts.map((contact) => (
+                      <div 
+                        key={contact._id} 
+                        className="border rounded-lg p-6 hover:shadow-md transition-shadow bg-white cursor-pointer"
+                        onClick={() => setSelectedContact(contact)}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-orange-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-lg text-gray-900">{contact.name}</h3>
+                                <p className="text-sm text-gray-600">{contact.email}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 mb-3">
+                              <MessageSquare className="w-4 h-4 text-gray-400" />
+                              <p className="font-semibold text-gray-900">{contact.subject}</p>
+                            </div>
+                            
+                            <p className="text-gray-700 mb-4 line-clamp-2">{contact.message}</p>
+                            
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <Calendar className="w-4 h-4" />
+                              <span>{new Date(contact.createdAt).toLocaleString()}</span>
+                            </div>
+                          </div>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedContact(contact);
+                            }}
+                            className="text-[#2563eb] hover:text-[#1d4ed8] font-semibold text-sm whitespace-nowrap"
+                          >
+                            View Full Message
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <p className="text-xl font-semibold mb-2">No contact messages yet</p>
+                      <p>Messages from customers will appear here</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Contact Detail Modal */}
+      {selectedContact && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-900">Contact Message Details</h2>
+                <button
+                  onClick={() => setSelectedContact(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">From</label>
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{selectedContact.name}</p>
+                    <p className="text-sm text-gray-600">{selectedContact.email}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                <p className="p-4 bg-gray-50 rounded-lg text-gray-900 font-semibold">
+                  {selectedContact.subject}
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-900 whitespace-pre-wrap">{selectedContact.message}</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Received</label>
+                <p className="text-gray-600">
+                  {new Date(selectedContact.createdAt).toLocaleString('en-GB', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <a
+                  href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject}`}
+                  className="flex-1 bg-[#2563eb] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors text-center"
+                >
+                  Reply via Email
+                </a>
+                <button
+                  onClick={() => setSelectedContact(null)}
+                  className="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );
