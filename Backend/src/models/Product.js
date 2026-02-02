@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema(
     category: { type: String, trim: true },
     stock: { type: Number, default: 0 },
     featured: { type: Boolean, default: false },
+    colors: [{ type: String, trim: true }], // Array of color strings
     images: [
       {
         url: String,

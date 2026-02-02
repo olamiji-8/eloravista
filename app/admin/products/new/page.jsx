@@ -6,7 +6,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { Save, X, Upload, Trash2 } from 'lucide-react';
+import { Save, X, Upload, Trash2, Plus } from 'lucide-react';
 import { productsAPI } from '@/lib/api/products';
 
 export default function NewProductPage() {
@@ -20,6 +20,8 @@ export default function NewProductPage() {
   });
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [currentColor, setCurrentColor] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { isAuthenticated, isAdmin } = useAuth();
@@ -57,6 +59,24 @@ export default function NewProductPage() {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleAddColor = () => {
+    if (currentColor.trim() && !colors.includes(currentColor.trim())) {
+      setColors([...colors, currentColor.trim()]);
+      setCurrentColor('');
+    }
+  };
+
+  const handleRemoveColor = (index) => {
+    setColors(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleColorKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddColor();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -70,6 +90,7 @@ export default function NewProductPage() {
       formDataToSend.append('category', formData.category);
       formDataToSend.append('stock', formData.stock);
       formDataToSend.append('featured', formData.featured);
+      formDataToSend.append('colors', JSON.stringify(colors));
       
       images.forEach(image => {
         formDataToSend.append('images', image);
@@ -189,6 +210,50 @@ export default function NewProductPage() {
                   <option value="Books">Books</option>
                   <option value="Sports">Sports</option>
                 </select>
+              </div>
+
+              {/* Colors Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Available Colors
+                </label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={currentColor}
+                    onChange={(e) => setCurrentColor(e.target.value)}
+                    onKeyPress={handleColorKeyPress}
+                    placeholder="Type color (e.g., Red, Blue, #FF0000)"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddColor}
+                    className="bg-[#2563eb] text-white px-4 py-3 rounded-lg hover:bg-[#1d4ed8] transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add
+                  </button>
+                </div>
+                {colors.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {colors.map((color, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-100 px-3 py-2 rounded-lg flex items-center gap-2 group"
+                      >
+                        <span className="text-sm font-medium">{color}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveColor(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">

@@ -70,7 +70,7 @@ export const getProduct = async (req, res) => {
 // @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, featured } = req.body;
+    const { name, description, price, category, stock, featured, colors } = req.body;
     const imageUrls = [];
 
     if (req.files && req.files.length > 0) {
@@ -83,6 +83,21 @@ export const createProduct = async (req, res) => {
       }
     }
 
+    // Parse colors if it's a string (from form data)
+    let colorArray = [];
+    if (colors) {
+      if (typeof colors === 'string') {
+        try {
+          colorArray = JSON.parse(colors);
+        } catch (e) {
+          // If JSON parse fails, treat as comma-separated string
+          colorArray = colors.split(',').map(c => c.trim()).filter(c => c);
+        }
+      } else if (Array.isArray(colors)) {
+        colorArray = colors;
+      }
+    }
+
     const product = await Product.create({
       name,
       description,
@@ -90,6 +105,7 @@ export const createProduct = async (req, res) => {
       category,
       stock,
       featured: featured || false,
+      colors: colorArray,
       images: imageUrls,
     });
 
@@ -125,6 +141,18 @@ export const updateProduct = async (req, res) => {
       }
 
       req.body.images = imageUrls;
+    }
+
+    // Parse colors if it's a string (from form data)
+    if (req.body.colors) {
+      if (typeof req.body.colors === 'string') {
+        try {
+          req.body.colors = JSON.parse(req.body.colors);
+        } catch (e) {
+          // If JSON parse fails, treat as comma-separated string
+          req.body.colors = req.body.colors.split(',').map(c => c.trim()).filter(c => c);
+        }
+      }
     }
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
