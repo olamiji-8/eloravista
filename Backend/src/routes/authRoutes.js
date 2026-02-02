@@ -14,5 +14,6 @@ router.put('/reset-password/:token', resetPassword);
 
 // Protected routes
 router.get('/me', protect, getMe);
+router.put('/change-password', protect, changePassword);
 
 export default router;
