@@ -252,7 +252,30 @@ export default function StorePage() {
                       <Link href={`/product/${product._id}`}>
                         <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
                       </Link>
-                      <p className="text-gray-600 mb-4 text-sm line-clamp-2">{product.description}</p>
+                      <p className="text-gray-600 mb-3 text-sm line-clamp-2">{product.description}</p>
+                      
+                      {/* Colors Display */}
+                      {product.colors && product.colors.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-xs text-gray-500 mb-1">Available Colors:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {product.colors.slice(0, 4).map((color, index) => (
+                              <span 
+                                key={index}
+                                className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                              >
+                                {color}
+                              </span>
+                            ))}
+                            {product.colors.length > 4 && (
+                              <span className="text-xs text-gray-500 px-2 py-1">
+                                +{product.colors.length - 4} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center justify-between">
                         <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
                         <button 

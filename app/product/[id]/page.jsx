@@ -17,6 +17,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState('');
   const [addingToCart, setAddingToCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [togglingWishlist, setTogglingWishlist] = useState(false);
@@ -40,6 +41,11 @@ export default function ProductDetailPage() {
       setLoading(true);
       const data = await productsAPI.getProduct(productId);
       setProduct(data.data);
+      
+      // Set default color if available
+      if (data.data.colors && data.data.colors.length > 0) {
+        setSelectedColor(data.data.colors[0]);
+      }
       
       // Fetch related products (same category)
       if (data.data.category) {
@@ -84,10 +90,23 @@ export default function ProductDetailPage() {
       return;
     }
 
+    // Check if color selection is required
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      alert('Please select a color');
+      return;
+    }
+
     setAddingToCart(true);
     try {
-      await addToCart(productId, quantity);
-      alert('Added to cart!');
+      await addToCart(productId, quantity, {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        category: product.category,
+        selectedColor: selectedColor || null,
+      });
+      alert(`Added to cart!${selectedColor ? ` Color: ${selectedColor}` : ''}`);
     } catch (error) {
       console.error('Add to cart error:', error);
       alert('Failed to add to cart');
@@ -279,6 +298,30 @@ export default function ProductDetailPage() {
                   <p className="text-gray-600 leading-relaxed">{product.description}</p>
                 </div>
 
+                {/* Color Selection */}
+                {product.colors && product.colors.length > 0 && (
+                  <div>
+                    <label className="block font-semibold text-gray-900 mb-3">
+                      Select Color: {selectedColor && <span className="text-[#233e89]">({selectedColor})</span>}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {product.colors.map((color, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedColor(color)}
+                          className={`px-4 py-2 rounded-lg border-2 font-medium transition-all cursor-pointer ${
+                            selectedColor === color
+                              ? 'bg-[#233e89] text-white border-[#233e89]'
+                              : 'bg-white text-gray-900 border-gray-300 hover:border-[#233e89]'
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-4">
                   <span className="font-semibold text-gray-900">Availability:</span>
                   {product.stock > 0 ? (
@@ -323,7 +366,7 @@ export default function ProductDetailPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddToCart}
-                    disabled={product.stock === 0 || addingToCart}
+                    disabled={product.stock === 0 || addingToCart || (product.colors && product.colors.length > 0 && !selectedColor)}
                     className="flex-1 bg-[#233e89] text-white px-6 py-4 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <ShoppingCart className="w-5 h-5" />
@@ -348,6 +391,9 @@ export default function ProductDetailPage() {
                   <p><span className="font-semibold text-gray-900">SKU:</span> {product._id.slice(-8).toUpperCase()}</p>
                   {product.category && (
                     <p><span className="font-semibold text-gray-900">Category:</span> {product.category}</p>
+                  )}
+                  {product.colors && product.colors.length > 0 && (
+                    <p><span className="font-semibold text-gray-900">Available Colors:</span> {product.colors.join(', ')}</p>
                   )}
                   <p><span className="font-semibold text-gray-900">Free shipping:</span> On orders over £100</p>
                   <p><span className="font-semibold text-gray-900">Returns:</span> 30-day return policy</p>
@@ -384,6 +430,11 @@ export default function ProductDetailPage() {
                       <h3 className="font-bold text-lg mb-2 text-gray-900 group-hover:text-[#233e89] transition-colors line-clamp-2">
                         {relatedProduct.name}
                       </h3>
+                      {relatedProduct.colors && relatedProduct.colors.length > 0 && (
+                        <p className="text-xs text-gray-500 mb-2">
+                          {relatedProduct.colors.length} color{relatedProduct.colors.length !== 1 ? 's' : ''} available
+                        </p>
+                      )}
                       <p className="text-[#233e89] font-bold text-xl">
                         £{relatedProduct.price.toFixed(2)}
                       </p>
