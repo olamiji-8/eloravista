@@ -1,13 +1,14 @@
 // app/login/page.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function LoginPage() {
+// Separate component that uses useSearchParams
+function LoginForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -157,5 +158,23 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function LoginPageLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#233e89] to-[#233e89]">
+      <div className="text-white text-lg">Loading...</div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginPageLoading />}>
+      <LoginForm />
+    </Suspense>
   );
 }
