@@ -9,6 +9,7 @@ import Link from 'next/link';
 export default function FeaturedProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState({});
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -26,12 +27,28 @@ export default function FeaturedProducts() {
     }
   };
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (product) => {
+    // Prevent multiple clicks
+    if (addingToCart[product._id]) return;
+    
+    setAddingToCart(prev => ({ ...prev, [product._id]: true }));
+    
     try {
-      await addToCart(productId, 1);
+      // Pass full product details for guest cart support
+      await addToCart(product._id, 1, {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        category: product.category,
+      });
+      
       alert('Added to cart!');
     } catch (error) {
-      alert('Please login to add items to cart');
+      console.error('Add to cart error:', error);
+      alert('Failed to add item to cart. Please try again.');
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [product._id]: false }));
     }
   };
 
@@ -92,11 +109,11 @@ export default function FeaturedProducts() {
                 <div className="flex items-center justify-between mt-4">
                   <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
                   <button 
-                    onClick={() => handleAddToCart(product._id)}
-                    className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
-                    disabled={product.stock === 0}
+                    onClick={() => handleAddToCart(product)}
+                    className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={product.stock === 0 || addingToCart[product._id]}
                   >
-                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                 </div>
               </div>

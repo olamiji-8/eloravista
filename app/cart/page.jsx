@@ -1,3 +1,4 @@
+// app/cart/page.jsx
 'use client';
 
 import { useEffect } from 'react';
@@ -13,12 +14,6 @@ export default function CartPage() {
   const { cart, loading, updateCartItem, removeFromCart, totalItems, totalPrice } = useCart();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
 
   const handleUpdateQuantity = async (productId, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
@@ -37,6 +32,15 @@ export default function CartPage() {
       } catch (error) {
         alert('Failed to remove item');
       }
+    }
+  };
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      // Redirect to login with checkout redirect
+      router.push('/login?redirect=/checkout');
+    } else {
+      router.push('/checkout');
     }
   };
 
@@ -88,6 +92,21 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
           
+          {/* Guest Notice */}
+          {!isAuthenticated && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800">
+                <strong>Shopping as a guest?</strong> Your cart is saved locally. 
+                <Link href="/login" className="underline ml-1 font-semibold">
+                  Login
+                </Link> or 
+                <Link href="/register" className="underline ml-1 font-semibold">
+                  create an account
+                </Link> to sync your cart and checkout.
+              </p>
+            </div>
+          )}
+          
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
@@ -125,14 +144,14 @@ export default function CartPage() {
                       <div className="flex items-center gap-2 bg-[#233e89] rounded-lg p-1">
                         <button 
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity, -1)}
-                          className="p-1  rounded transition-colors"
+                          className="p-1 rounded transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="px-3 font-semibold">{item.quantity}</span>
                         <button 
                           onClick={() => handleUpdateQuantity(item.product._id, item.quantity, 1)}
-                          className="p-1  rounded transition-colors"
+                          className="p-1 rounded transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -164,10 +183,10 @@ export default function CartPage() {
                 </div>
                 
                 <button 
-                  onClick={() => router.push('/checkout')}
+                  onClick={handleCheckout}
                   className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors mb-3"
                 >
-                  Proceed to Checkout
+                  {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
                 </button>
                 
                 <Link 

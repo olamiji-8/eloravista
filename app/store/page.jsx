@@ -76,7 +76,6 @@ export default function StorePage() {
   const fetchWishlist = async () => {
     try {
       const data = await wishlistAPI.getWishlist();
-      // Extract product IDs from wishlist
       const productIds = data.data?.products?.map(p => p._id) || [];
       setWishlistItems(productIds);
     } catch (error) {
@@ -85,21 +84,29 @@ export default function StorePage() {
     }
   };
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (product) => {
     // Prevent multiple clicks
-    if (addingToCart[productId]) return;
+    if (addingToCart[product._id]) return;
     
-    setAddingToCart(prev => ({ ...prev, [productId]: true }));
+    setAddingToCart(prev => ({ ...prev, [product._id]: true }));
     
     try {
-      await addToCart(productId, 1);
+      // Pass full product details for guest cart support
+      await addToCart(product._id, 1, {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+        category: product.category,
+      });
+      
       // Success feedback
       alert('Added to cart!');
     } catch (error) {
       console.error('Add to cart error:', error);
-      alert('Please login to add items to cart');
+      alert('Failed to add item to cart. Please try again.');
     } finally {
-      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+      setAddingToCart(prev => ({ ...prev, [product._id]: false }));
     }
   };
 
@@ -249,7 +256,7 @@ export default function StorePage() {
                       <div className="flex items-center justify-between">
                         <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
                         <button 
-                          onClick={() => handleAddToCart(product._id)}
+                          onClick={() => handleAddToCart(product)}
                           className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           disabled={product.stock === 0 || addingToCart[product._id]}
                         >
@@ -302,7 +309,7 @@ export default function StorePage() {
         </div>
       </section>
 
-      {/* Why Shop With Us Section - Before Footer */}
+      {/* Why Shop With Us Section */}
       <section className="bg-[#233e89] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -311,7 +318,6 @@ export default function StorePage() {
           </div>
           
           <div className="grid md:grid-cols-4 gap-8">
-            {/* Feature 1 */}
             <div className="text-center text-white">
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +330,6 @@ export default function StorePage() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="text-center text-white">
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,7 +342,6 @@ export default function StorePage() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="text-center text-white">
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,7 +354,6 @@ export default function StorePage() {
               </p>
             </div>
 
-            {/* Feature 4 */}
             <div className="text-center text-white">
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">

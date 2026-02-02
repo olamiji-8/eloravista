@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -15,22 +15,26 @@ export default function LoginPage() {
   const { login, loading, error, isAuthenticated } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get redirect URL from query params
+  const redirectUrl = searchParams.get('redirect') || '/';
 
-  // only redirect when provider finished initializing
+  // Redirect when authenticated
   useEffect(() => {
-    console.log('LoginPage: auth state', { loading, isAuthenticated }); // debug
+    console.log('LoginPage: auth state', { loading, isAuthenticated });
     if (!loading && isAuthenticated) {
-      router.push('/');
+      router.push(redirectUrl);
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, redirectUrl]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       await login(formData);
-      // redirect after successful login
-      router.push('/');
+      // Redirect after successful login
+      router.push(redirectUrl);
     } catch (err) {
       console.error('Login failed:', err);
     } finally {
@@ -63,6 +67,15 @@ export default function LoginPage() {
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome Back</h2>
             <p className="mt-2 text-sm text-gray-600">Please sign in to your account</p>
+            
+            {/* Show message if redirected from checkout */}
+            {redirectUrl === '/checkout' && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Please login to continue with checkout
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Error Message */}
@@ -127,7 +140,10 @@ export default function LoginPage() {
           {/* Register Link */}
           <p className="text-center mt-6 text-sm text-gray-600">
             Do not have an account?{' '}
-            <Link href="/register" className="text-[#233e89] font-semibold hover:text-[#1d4ed8]">
+            <Link 
+              href={`/register${redirectUrl !== '/' ? `?redirect=${redirectUrl}` : ''}`} 
+              className="text-[#233e89] font-semibold hover:text-[#1d4ed8]"
+            >
               Create Account
             </Link>
           </p>

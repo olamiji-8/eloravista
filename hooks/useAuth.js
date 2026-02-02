@@ -9,17 +9,15 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // load stored user once
+  // Load stored user once on mount
   useEffect(() => {
     let mounted = true;
     const init = async () => {
-      setLoading(true);
       try {
         const stored = authAPI?.getStoredUser?.() ?? JSON.parse(localStorage.getItem(STORAGE_KEY));
-        console.log('AuthProvider:init stored', stored); // debug
         if (mounted && stored) {
           setUser(stored);
         }
@@ -57,10 +55,8 @@ export const AuthProvider = ({ children }) => {
       const u = result?.data ?? result;
       setUser(u);
       persistUser(u);
-      console.log('AuthProvider: login success', u);
       return result;
     } catch (err) {
-      console.error('AuthProvider: login error', err);
       setError(err.response?.data?.message ?? err.message ?? 'Login failed');
       throw err;
     } finally {
@@ -76,10 +72,8 @@ export const AuthProvider = ({ children }) => {
       const u = result?.data ?? result;
       setUser(u);
       persistUser(u);
-      console.log('AuthProvider: register success', u);
       return result;
     } catch (err) {
-      console.error('AuthProvider: register error', err);
       setError(err.response?.data?.message ?? err.message ?? 'Registration failed');
       throw err;
     } finally {
@@ -95,7 +89,6 @@ export const AuthProvider = ({ children }) => {
     }
     setUser(null);
     clearStoredUser();
-    console.log('AuthProvider: logged out');
   };
 
   const value = {

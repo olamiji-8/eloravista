@@ -1,9 +1,9 @@
 // app/register/page.jsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -14,17 +14,28 @@ export default function RegisterPage() {
     password: '',
     phone: ''
   });
-  const { register, loading, error } = useAuth();
+  const { register, loading, error, isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get redirect URL from query params
+  const redirectUrl = searchParams.get('redirect') || '/';
+
+  // Redirect when authenticated
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      router.push(redirectUrl);
+    }
+  }, [isAuthenticated, loading, router, redirectUrl]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await register(formData);
       alert('Registration successful! Please check your email to verify your account.');
-      // Wait a moment for state to update, then redirect
+      // Redirect after successful registration
       setTimeout(() => {
-        router.push('/');
+        router.push(redirectUrl);
       }, 100);
     } catch (err) {
       console.error('Registration failed:', err);
@@ -56,6 +67,15 @@ export default function RegisterPage() {
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">Create Account</h2>
             <p className="mt-2 text-sm text-gray-600">Join EloraVista today</p>
+            
+            {/* Show message if redirected from checkout */}
+            {redirectUrl === '/checkout' && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Create an account to complete your purchase
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Error Message */}
@@ -148,7 +168,10 @@ export default function RegisterPage() {
           {/* Login Link */}
           <p className="text-center mt-6 text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="text-[#233e89] font-semibold hover:text-[#1d4ed8]">
+            <Link 
+              href={`/login${redirectUrl !== '/' ? `?redirect=${redirectUrl}` : ''}`} 
+              className="text-[#233e89] font-semibold hover:text-[#1d4ed8]"
+            >
               Sign In
             </Link>
           </p>
