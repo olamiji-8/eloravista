@@ -1,13 +1,13 @@
 import 'dotenv/config';
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 20; // <-- increase listener limit to avoid MaxListenersExceededWarning
+EventEmitter.defaultMaxListeners = 20;
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 
-// route imports (ensure these files export a router as default)
+// route imports
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
@@ -17,11 +17,14 @@ import contactRoutes from './routes/contactRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 
-
 // Connect to database
 connectDB();
 
 const app = express();
+
+// IMPORTANT: Webhook route MUST come before express.json() middleware
+// because Stripe webhooks need raw body for signature verification
+app.use('/api/payment', paymentRoutes);
 
 // Middleware
 app.use(express.json());
@@ -30,7 +33,7 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-// Routes
+// Routes (excluding payment routes as they're already registered above)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
@@ -38,7 +41,6 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/contact', contactRoutes);
-app.use('/api/payment', paymentRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
