@@ -61,10 +61,10 @@ function CheckoutContent() {
     }
   }, [cart, router]);
 
-  // Calculate prices
+  // Calculate prices - FREE SHIPPING AND TAX
   const itemsPrice = cart?.totalPrice || 0;
-  const shippingPrice = itemsPrice > 100 ? 0 : 10; // Free shipping over £100
-  const taxPrice = itemsPrice * 0.2; // 20% VAT
+  const shippingPrice = 0; // FREE SHIPPING
+  const taxPrice = 0; // FREE TAX
   const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
   // Handle shipping form change
@@ -249,7 +249,7 @@ function CheckoutContent() {
                         name="street"
                         value={shippingAddress.street}
                         onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                         required
                       />
                     </div>
@@ -264,7 +264,7 @@ function CheckoutContent() {
                           name="city"
                           value={shippingAddress.city}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                           required
                         />
                       </div>
@@ -278,7 +278,7 @@ function CheckoutContent() {
                           name="state"
                           value={shippingAddress.state}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                           required
                         />
                       </div>
@@ -294,7 +294,7 @@ function CheckoutContent() {
                           name="country"
                           value={shippingAddress.country}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                           required
                         />
                       </div>
@@ -308,7 +308,7 @@ function CheckoutContent() {
                           name="zipCode"
                           value={shippingAddress.zipCode}
                           onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                           required
                         />
                       </div>
@@ -323,7 +323,7 @@ function CheckoutContent() {
                         name="phone"
                         value={shippingAddress.phone}
                         onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
                         required
                       />
                     </div>
@@ -449,13 +449,11 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold text-gray-900">
-                    {shippingPrice === 0 ? 'Free' : `£${shippingPrice.toFixed(2)}`}
-                  </span>
+                  <span className="font-semibold text-green-600">Free</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax (20%)</span>
-                  <span className="font-semibold text-gray-900">£{taxPrice.toFixed(2)}</span>
+                  <span className="text-gray-600">Tax</span>
+                  <span className="font-semibold text-green-600">Free</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between text-lg font-bold">
                   <span className="text-gray-900">Total</span>

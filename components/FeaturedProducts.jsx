@@ -60,14 +60,14 @@ export default function FeaturedProducts() {
             <h2 className="text-5xl font-bold text-[#0F2252] mb-4">Featured Products</h2>
             <div className="w-24 h-1 bg-[#0F2252] mx-auto"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[1, 2, 3, 4].map((item) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-8">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
               <div key={item} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-                <div className="h-64 bg-gray-300"></div>
-                <div className="p-4">
-                  <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
-                  <div className="h-6 bg-gray-300 rounded w-20"></div>
+                <div className="h-40 sm:h-52 lg:h-64 bg-gray-300"></div>
+                <div className="p-2 sm:p-3 lg:p-4">
+                  <div className="h-4 sm:h-6 bg-gray-300 rounded mb-2"></div>
+                  <div className="h-3 sm:h-4 bg-gray-300 rounded w-3/4 mb-2 sm:mb-4 hidden sm:block"></div>
+                  <div className="h-5 sm:h-6 bg-gray-300 rounded w-16 sm:w-20"></div>
                 </div>
               </div>
             ))}
@@ -85,11 +85,11 @@ export default function FeaturedProducts() {
           <div className="w-24 h-1 bg-[#0F2252] mx-auto"></div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-8">
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
               <Link href={`/product/${product._id}`}>
-                <div className="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                <div className="relative h-40 sm:h-52 lg:h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
                   {product.images && product.images.length > 0 ? (
                     <img 
                       src={product.images[0].url} 
@@ -99,17 +99,23 @@ export default function FeaturedProducts() {
                   ) : (
                     <span className="text-gray-400">No Image</span>
                   )}
+                  {/* Sale Badge */}
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <span className="absolute bottom-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 rounded">
+                      Sale
+                    </span>
+                  )}
                 </div>
               </Link>
-              <div className="p-4">
+              <div className="p-2 sm:p-3 lg:p-4">
                 <Link href={`/product/${product._id}`}>
-                  <h3 className="font-bold text-lg mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                  <h3 className="font-bold text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 text-[#0F2252] hover:text-[#1a3a7a] transition-colors truncate">{product.name}</h3>
                 </Link>
-                <p className="text-gray-600 mb-2 text-sm line-clamp-2">{product.description}</p>
+                <p className="text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm line-clamp-1 sm:line-clamp-2 hidden sm:block">{product.description}</p>
                 
-                {/* Colors Display */}
+                {/* Colors Display - hidden on mobile */}
                 {product.colors && product.colors.length > 0 && (
-                  <div className="mb-3">
+                  <div className="mb-3 hidden sm:block">
                     <p className="text-xs text-gray-500 mb-1">Available Colors:</p>
                     <div className="flex flex-wrap gap-1">
                       {product.colors.slice(0, 3).map((color, index) => (
@@ -129,11 +135,16 @@ export default function FeaturedProducts() {
                   </div>
                 )}
                 
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-[#0F2252] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                <div className="flex items-center justify-between mt-2 lg:mt-4">
+                  <div className="flex flex-col">
+                    {product.originalPrice && product.originalPrice > product.price && (
+                      <span className="text-gray-400 line-through text-xs sm:text-sm">£{product.originalPrice.toFixed(2)}</span>
+                    )}
+                    <p className="text-[#0F2252] font-bold text-base sm:text-xl">£{product.price.toFixed(2)}</p>
+                  </div>
                   <button 
                     onClick={() => handleAddToCart(product)}
-                    className="bg-[#0F2252] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-[#0F2252] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={product.stock === 0 || addingToCart[product._id]}
                   >
                     {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}

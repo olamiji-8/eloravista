@@ -14,13 +14,13 @@ import Link from 'next/link';
 // Skeleton Loader Component
 const ProductSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
-    <div className="h-72 bg-gray-300"></div>
-    <div className="p-5">
-      <div className="h-6 bg-gray-300 rounded mb-2"></div>
-      <div className="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
+    <div className="h-40 sm:h-52 lg:h-72 bg-gray-300"></div>
+    <div className="p-2 sm:p-3 lg:p-5">
+      <div className="h-4 sm:h-6 bg-gray-300 rounded mb-2"></div>
+      <div className="h-3 sm:h-4 bg-gray-300 rounded w-3/4 mb-2 sm:mb-4 hidden sm:block"></div>
       <div className="flex items-center justify-between">
-        <div className="h-6 bg-gray-300 rounded w-20"></div>
-        <div className="h-10 bg-gray-300 rounded w-28"></div>
+        <div className="h-5 sm:h-6 bg-gray-300 rounded w-16 sm:w-20"></div>
+        <div className="h-7 sm:h-10 bg-gray-300 rounded w-20 sm:w-28"></div>
       </div>
     </div>
   </div>
@@ -201,7 +201,7 @@ export default function StorePage() {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-8">
             {loading ? (
               Array.from({ length: 12 }).map((_, index) => (
                 <ProductSkeleton key={index} />
@@ -213,7 +213,7 @@ export default function StorePage() {
                 return (
                   <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group">
                     <Link href={`/product/${product._id}`}>
-                      <div className="relative h-72 bg-gray-200 overflow-hidden">
+                      <div className="relative h-40 sm:h-52 lg:h-72 bg-gray-200 overflow-hidden">
                         {product.images && product.images.length > 0 ? (
                           <img 
                             src={product.images[0].url} 
@@ -225,13 +225,19 @@ export default function StorePage() {
                             <span className="text-sm">{product.category}</span>
                           </div>
                         )}
+                        {/* Sale Badge */}
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <span className="absolute bottom-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 rounded">
+                            Sale
+                          </span>
+                        )}
                         <button 
                           onClick={(e) => handleToggleWishlist(product._id, e)}
                           disabled={togglingWishlist[product._id]}
-                          className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+                          className="absolute top-2 right-2 lg:top-4 lg:right-4 bg-white p-1.5 lg:p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                         >
                           <svg 
-                            className={`w-5 h-5 transition-colors ${
+                            className={`w-4 h-4 lg:w-5 lg:h-5 transition-colors ${
                               isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-900'
                             }`}
                             fill={isInWishlist ? 'currentColor' : 'none'}
@@ -248,15 +254,15 @@ export default function StorePage() {
                         </button>
                       </div>
                     </Link>
-                    <div className="p-5">
+                    <div className="p-2 sm:p-3 lg:p-5">
                       <Link href={`/product/${product._id}`}>
-                        <h3 className="font-bold text-lg mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors">{product.name}</h3>
+                        <h3 className="font-bold text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 text-[#233e89] hover:text-[#1a3a7a] transition-colors truncate">{product.name}</h3>
                       </Link>
-                      <p className="text-gray-600 mb-3 text-sm line-clamp-2">{product.description}</p>
+                      <p className="text-gray-600 mb-1 sm:mb-3 text-xs sm:text-sm line-clamp-1 sm:line-clamp-2 hidden sm:block">{product.description}</p>
                       
-                      {/* Colors Display */}
+                      {/* Colors Display - hidden on mobile */}
                       {product.colors && product.colors.length > 0 && (
-                        <div className="mb-3">
+                        <div className="mb-3 hidden sm:block">
                           <p className="text-xs text-gray-500 mb-1">Available Colors:</p>
                           <div className="flex flex-wrap gap-1">
                             {product.colors.slice(0, 4).map((color, index) => (
@@ -277,10 +283,15 @@ export default function StorePage() {
                       )}
                       
                       <div className="flex items-center justify-between">
-                        <p className="text-[#233e89] font-bold text-xl">£{product.price.toFixed(2)}</p>
+                        <div className="flex flex-col">
+                          {product.originalPrice && product.originalPrice > product.price && (
+                            <span className="text-gray-400 line-through text-xs sm:text-sm">£{product.originalPrice.toFixed(2)}</span>
+                          )}
+                          <p className="text-[#233e89] font-bold text-base sm:text-xl">£{product.price.toFixed(2)}</p>
+                        </div>
                         <button 
                           onClick={() => handleAddToCart(product)}
-                          className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-[#233e89] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           disabled={product.stock === 0 || addingToCart[product._id]}
                         >
                           {addingToCart[product._id] ? 'Adding...' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}

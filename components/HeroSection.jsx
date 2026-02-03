@@ -27,9 +27,8 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Image Placeholder */}
-          <div className="relative h-96">
-            {/* Replace this div with your hero image */}
+          {/* Image - hidden on mobile, visible from md up */}
+          <div className="relative h-96 hidden md:block">
             <div className="w-full h-full bg-[#233e89] rounded-lg flex items-center justify-center shadow-xl">
               <img 
                 src="/banner.jpg" 
