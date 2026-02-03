@@ -9,7 +9,7 @@ import crypto from 'crypto';
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -28,7 +28,6 @@ export const register = async (req, res) => {
       name,
       email,
       password,
-      phone,
       verificationToken,
       verificationTokenExpire: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     });

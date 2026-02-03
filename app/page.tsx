@@ -1,8 +1,6 @@
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
-import FeaturesSection from '@/components/FeaturesSection';
 import SpecialEditionBanner from '@/components/SpecialEditionBanner';
-import CategoriesSection from '@/components/CategoriesSection';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Footer from '@/components/Footer';
 import FloatingCart from '@/components/FloatingCart';
@@ -13,10 +11,9 @@ export default function Home() {
       <Navigation />
       <main>
         <HeroSection />
-         <CategoriesSection />
+        
          <FeaturedProducts />
          <SpecialEditionBanner />
-        <FeaturesSection />
         
        
         
