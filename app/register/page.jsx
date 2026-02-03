@@ -1,173 +1,182 @@
-// app/register/page.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { Suspense } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { authAPI } from '@/lib/api/auth';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import Link from 'next/link';
-import Image from 'next/image';
 
-export default function RegisterPage() {
+// Create a separate component that uses useSearchParams
+function RegisterForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/';
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    phone: ''
+    confirmPassword: '',
   });
-  const { register, loading, error, isAuthenticated } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  // Get redirect URL from query params
-  const redirectUrl = searchParams.get('redirect') || '/';
 
-  // Redirect when authenticated
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      router.push(redirectUrl);
-    }
-  }, [isAuthenticated, loading, router, redirectUrl]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await register(formData);
-      alert('Registration successful! Please check your email to verify your account.');
-      // Redirect after successful registration
-      setTimeout(() => {
-        router.push(redirectUrl);
-      }, 100);
-    } catch (err) {
-      console.error('Registration failed:', err);
-    }
-  };
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#233e89] to-[#233e89] py-12 px-4 sm:px-6 lg:px-8 text-black">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <Link href="/">
-              <Image 
-                src="/Elora-Vista-Logo.png" 
-                alt="EloraVista Logo" 
-                width={150}
-                height={75}
-                className="mx-auto"
-                priority
-              />
-            </Link>
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Create Account</h2>
-            <p className="mt-2 text-sm text-gray-600">Join EloraVista today</p>
-            
-            {/* Show message if redirected from checkout */}
-            {redirectUrl === '/checkout' && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  Create an account to complete your purchase
-                </p>
-              </div>
-            )}
-          </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-          {/* Error Message */}
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await authAPI.register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (response.success) {
+        // Show success message
+        alert(response.message || 'Registration successful! Please check your email to verify your account.');
+        router.push('/login');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-24">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+        <div>
+          <h2 className="text-center text-3xl font-bold text-gray-900">
+            Create your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link href="/login" className="font-medium text-[#233e89] hover:text-[#1d4ed8]">
+              Sign in
+            </Link>
+          </p>
+        </div>
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
-          {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-900">
                 Full Name
               </label>
               <input
                 id="name"
                 name="name"
                 type="text"
+                required
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="John Doe"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
-                required
-                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#233e89] focus:border-[#233e89]"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-900">
                 Email Address
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@example.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
-                required
-                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#233e89] focus:border-[#233e89]"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
                 type="password"
+                required
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#233e89] focus:border-transparent"
-                required
-                minLength="6"
-                disabled={loading}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#233e89] focus:border-[#233e89]"
               />
-              <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
-
-          {/* Login Link */}
-          <p className="text-center mt-6 text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link 
-              href={`/login${redirectUrl !== '/' ? `?redirect=${redirectUrl}` : ''}`} 
-              className="text-[#233e89] font-semibold hover:text-[#1d4ed8]"
-            >
-              Sign In
-            </Link>
-          </p>
-
-          {/* Back to Home */}
-          <div className="text-center mt-4">
-            <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
-              ← Back to Home
-            </Link>
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-900">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-[#233e89] focus:border-[#233e89]"
+              />
+            </div>
           </div>
-        </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#233e89] hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#233e89] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
       </div>
     </div>
+  );
+}
+
+// Main page component with Suspense wrapper
+export default function RegisterPage() {
+  return (
+    <>
+      <Navigation />
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center pt-24">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#233e89]"></div>
+        </div>
+      }>
+        <RegisterForm />
+      </Suspense>
+      <Footer />
+    </>
   );
 }
