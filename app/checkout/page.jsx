@@ -367,7 +367,7 @@ function CheckoutForm({ shippingAddress, cart, user, totalPrice, taxPrice, shipp
         orderItems: cart.items.map(item => ({
           product: item.product._id,
           name: item.product.name,
-          quantity: item.quantity,
+          qty: item.quantity,
           price: item.price,
         })),
         shippingAddress,
