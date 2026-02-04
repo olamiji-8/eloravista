@@ -14,6 +14,21 @@ import Footer from '@/components/Footer';
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
+// Common countries list with ISO codes
+const COUNTRIES = [
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'GH', name: 'Ghana' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'AU', name: 'Australia' },
+].sort((a, b) => a.name.localeCompare(b.name));
+
 export default function CheckoutPage() {
   return (
     <>
@@ -34,7 +49,7 @@ function CheckoutWrapper() {
     street: '',
     city: '',
     state: '',
-    country: '',
+    country: 'NG', // Default to Nigeria ISO code
     zipCode: '',
     phone: '',
   });
@@ -236,14 +251,19 @@ function ShippingForm({ shippingAddress, setShippingAddress, onContinue }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">Country</label>
-            <input
-              type="text"
+            <select
               name="country"
               value={shippingAddress.country}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
               required
-            />
+            >
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -312,24 +332,11 @@ function CheckoutForm({ shippingAddress, cart, user, totalPrice, taxPrice, shipp
     setError('');
 
     try {
+      // Don't send billing address - let Stripe collect it if needed
       const { error: submitError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/checkout/success`,
-          payment_method_data: {
-            billing_details: {
-              name: user?.name,
-              email: user?.email,
-              phone: shippingAddress.phone,
-              address: {
-                line1: shippingAddress.street,
-                city: shippingAddress.city,
-                state: shippingAddress.state,
-                country: shippingAddress.country,
-                postal_code: shippingAddress.zipCode,
-              },
-            },
-          },
         },
         redirect: 'if_required',
       });
@@ -388,9 +395,17 @@ function CheckoutForm({ shippingAddress, cart, user, totalPrice, taxPrice, shipp
 
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <PaymentElement />
+          <PaymentElement 
+            options={{
+              // Let Stripe handle billing details collection
+              // Don't pre-fill to avoid country code issues
+              fields: {
+                billingDetails: 'auto'
+              }
+            }}
+          />
           <p className="text-sm text-gray-600 mt-2">
-            Your payment information is secure and encrypted
+            Choose your preferred payment method. Your information is secure and encrypted.
           </p>
         </div>
 

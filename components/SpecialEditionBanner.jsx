@@ -9,12 +9,12 @@ const SpecialEditionBanner = () => {
             {/* Image Placeholder */}
           <div className="relative h-96">
             {/* Replace this div with your special edition image */}
-       <div className="w-full h-full rounded-lg flex items-center justify-center shadow-xl">
+            <div className="w-full h-full rounded-lg flex items-center justify-center shadow-xl">
               <img 
-  src="https://images.unsplash.com/photo-1483985988355-763728e1935b" 
-  alt="Special Edition" 
-  className="w-full h-full object-cover rounded-lg"
-/>
+                src="https://images.unsplash.com/photo-1483985988355-763728e1935b" 
+                alt="Special Edition" 
+                className="w-full h-full object-cover rounded-lg"
+              />
             </div>
           </div>
           {/* Text Content */}
@@ -26,12 +26,7 @@ const SpecialEditionBanner = () => {
             <p className="text-lg mb-8 leading-relaxed">
               Every product is selected to meet high standards of quality, durability, and value.
             </p>
-            <button className="bg-white text-[#0F2252] px-8 py-3 font-bold hover:bg-[#0F2252] hover:text-white transition-colors mt-4 cursor-pointer">
-              SHOP NOW
-            </button>
           </div>
-          
-
         </div>
       </div>
     </section>
