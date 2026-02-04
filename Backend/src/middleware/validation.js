@@ -114,7 +114,7 @@ export const contactValidation = [
   validate,
 ];
 
-// Order validation
+// Order validation - FIXED TO ACCEPT 'Stripe' with capital S
 export const orderValidation = [
   body('orderItems')
     .isArray({ min: 1 })
@@ -146,7 +146,7 @@ export const orderValidation = [
   body('paymentMethod')
     .notEmpty()
     .withMessage('Payment method is required')
-    .isIn(['stripe', 'paystack'])
+    .isIn(['Stripe', 'stripe', 'Paystack', 'paystack'])
     .withMessage('Invalid payment method'),
   validate,
 ];
