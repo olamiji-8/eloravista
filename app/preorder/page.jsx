@@ -52,9 +52,9 @@ export default function AccessoriesPage() {
       <section className="relative bg-gradient-to-r from-[#233e89] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
-            <h1 className="text-6xl font-bold">Accessories</h1>
+            <h1 className="text-6xl font-bold">Preorder</h1>
             <p className="text-xl max-w-3xl mx-auto">
-              Complete your look with our curated collection of premium accessories. From bags to jewelry, find the perfect finishing touch.
+              Be the first to get exclusive products before they launch. Secure your spot and enjoy early access to our latest collections.
             </p>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function AccessoriesPage() {
                         onClick={() => handleAddToCart(product._id)}
                         className="bg-[#233e89] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a3a7a] transition-colors cursor-pointer"
                       >
-                        Add to Cart
+                        Preorder Now
                       </button>
                     </div>
                   </div>
@@ -138,7 +138,7 @@ export default function AccessoriesPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-20">
-                <p className="text-gray-600 text-xl">No products found in Accessories category</p>
+                <p className="text-gray-600 text-xl">No preorder products available at the moment</p>
               </div>
             )}
           </div>
@@ -161,7 +161,7 @@ export default function AccessoriesPage() {
       <section className="bg-[#233e89] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold text-white mb-4">Elevate Your Style</h2>
+            <h2 className="text-5xl font-bold text-white mb-4">Why Preorder with EloraVista?</h2>
             <div className="w-24 h-1 bg-white mx-auto"></div>
           </div>
           
@@ -173,9 +173,9 @@ export default function AccessoriesPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4">Trendy Designs</h3>
+              <h3 className="text-2xl font-bold mb-4">Early Access</h3>
               <p className="text-white/80 leading-relaxed">
-                Stay ahead with our latest collection of accessories that complement any outfit and occasion.
+                Be among the first to receive exclusive products before they are available to everyone else.
               </p>
             </div>
 
@@ -186,9 +186,9 @@ export default function AccessoriesPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4">Premium Materials</h3>
+              <h3 className="text-2xl font-bold mb-4">Guaranteed Availability</h3>
               <p className="text-white/80 leading-relaxed">
-                Crafted from high-quality materials sourced globally to ensure durability and elegance.
+                Secure your order now and never miss out on limited edition or high-demand products.
               </p>
             </div>
 
@@ -199,9 +199,9 @@ export default function AccessoriesPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4">Perfect Gifts</h3>
+              <h3 className="text-2xl font-bold mb-4">Special Pricing</h3>
               <p className="text-white/80 leading-relaxed">
-                Find the ideal accessory for yourself or as a thoughtful gift for someone special.
+                Enjoy exclusive preorder pricing and special offers available only to early supporters.
               </p>
             </div>
           </div>

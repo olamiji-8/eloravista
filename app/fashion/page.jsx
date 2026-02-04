@@ -52,9 +52,9 @@ export default function FashionPage() {
       <section className="relative bg-gradient-to-r from-[#233e89] to-[#1a3a7a] pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center text-white space-y-4">
-            <h1 className="text-6xl font-bold">Fashion</h1>
+            <h1 className="text-6xl font-bold">Fashion & Beauty</h1>
             <p className="text-xl max-w-3xl mx-auto">
-              Exclusive Fashion deals for a Limited Time. Discover premium quality clothing and accessories from trusted global markets.
+              Exclusive Fashion & Beauty deals for a Limited Time. Discover premium quality clothing, accessories, and beauty products from trusted global markets.
             </p>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function FashionPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-20">
-                <p className="text-gray-600 text-xl">No products found in Fashion category</p>
+                <p className="text-gray-600 text-xl">No products found in Fashion & Beauty category</p>
               </div>
             )}
           </div>
@@ -164,7 +164,7 @@ export default function FashionPage() {
       <section className="bg-[#233e89] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold text-white mb-4">Why Choose EloraVista Fashion?</h2>
+            <h2 className="text-5xl font-bold text-white mb-4">Why Choose EloraVista Fashion & Beauty?</h2>
             <div className="w-24 h-1 bg-white mx-auto"></div>
           </div>
           
@@ -178,7 +178,7 @@ export default function FashionPage() {
               </div>
               <h3 className="text-2xl font-bold mb-4">Premium Quality</h3>
               <p className="text-white/80 leading-relaxed">
-                Every fashion item is carefully selected from trusted international suppliers to ensure the highest quality standards.
+                Every fashion and beauty item is carefully selected from trusted international suppliers to ensure the highest quality standards.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ export default function FashionPage() {
               </div>
               <h3 className="text-2xl font-bold mb-4">Best Prices</h3>
               <p className="text-white/80 leading-relaxed">
-                Direct sourcing from global markets means you get premium fashion at unbeatable prices.
+                Direct sourcing from global markets means you get premium fashion and beauty products at unbeatable prices.
               </p>
             </div>
 
