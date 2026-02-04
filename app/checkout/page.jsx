@@ -7,7 +7,7 @@ import { useCart } from '@/hooks/useCart';
 import { paymentAPI } from '@/lib/api/payment';
 import { ordersAPI } from '@/lib/api/orders';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -18,26 +18,18 @@ export default function CheckoutPage() {
   return (
     <>
       <Navigation />
-      <Elements stripe={stripePromise}>
-        <CheckoutContent />
-      </Elements>
+      <CheckoutWrapper />
       <Footer />
     </>
   );
 }
 
-function CheckoutContent() {
-  const router = useRouter();
+function CheckoutWrapper() {
   const { user, isAuthenticated } = useAuth();
-  const { cart, clearCart } = useCart();
-  const stripe = useStripe();
-  const elements = useElements();
-
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // Shipping Address
+  const { cart } = useCart();
+  const router = useRouter();
+  const [clientSecret, setClientSecret] = useState('');
+  const [step, setStep] = useState(1);
   const [shippingAddress, setShippingAddress] = useState({
     street: '',
     city: '',
@@ -61,119 +53,21 @@ function CheckoutContent() {
     }
   }, [cart, router]);
 
-  // Calculate prices - FREE SHIPPING AND TAX
+  // Calculate prices
   const itemsPrice = cart?.totalPrice || 0;
-  const shippingPrice = 0; // FREE SHIPPING
-  const taxPrice = 0; // FREE TAX
+  const shippingPrice = 0;
+  const taxPrice = 0;
   const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
-  // Handle shipping form change
-  const handleShippingChange = (e) => {
-    setShippingAddress({
-      ...shippingAddress,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Validate shipping address
-  const validateShipping = () => {
-    const { street, city, state, country, zipCode, phone } = shippingAddress;
-    if (!street || !city || !state || !country || !zipCode || !phone) {
-      setError('Please fill in all shipping address fields');
-      return false;
-    }
-    return true;
-  };
-
-  // Handle Stripe Payment
-  const handleStripePayment = async (e) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      setError('Stripe has not loaded yet');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
+  // Create payment intent when moving to step 2
+  const createPaymentIntent = async () => {
     try {
-      // Create payment intent
-      const paymentIntentResponse = await paymentAPI.createStripePayment(totalPrice, 'gbp');
-      const { clientSecret, paymentIntentId } = paymentIntentResponse;
-
-      // Confirm card payment
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method: {
-            card: elements.getElement(CardElement),
-            billing_details: {
-              name: user?.name,
-              email: user?.email,
-              phone: shippingAddress.phone,
-              address: {
-                line1: shippingAddress.street,
-                city: shippingAddress.city,
-                state: shippingAddress.state,
-                country: shippingAddress.country,
-                postal_code: shippingAddress.zipCode,
-              },
-            },
-          },
-        }
-      );
-
-      if (stripeError) {
-        throw new Error(stripeError.message);
-      }
-
-      if (paymentIntent.status === 'succeeded') {
-        // Create order
-        await createOrder({
-          id: paymentIntentId,
-          status: 'succeeded',
-          update_time: new Date().toISOString(),
-          email_address: user?.email,
-        });
-      }
-    } catch (err) {
-      console.error('Stripe payment error:', err);
-      setError(err.message || 'Payment failed. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  // Create order after successful payment
-  const createOrder = async (paymentResult) => {
-    try {
-      const orderData = {
-        orderItems: cart.items.map(item => ({
-          product: item.product._id,
-          name: item.product.name,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-        shippingAddress,
-        paymentMethod: 'Stripe',
-        paymentResult,
-        taxPrice,
-        shippingPrice,
-        totalPrice,
-      };
-
-      const response = await ordersAPI.createOrder(orderData);
-      
-      // Clear cart
-      await clearCart();
-
-      // Redirect to order confirmation
-      router.push(`/orders/${response.data._id}`);
-    } catch (err) {
-      console.error('Order creation error:', err);
-      setError('Payment successful but order creation failed. Please contact support.');
-    } finally {
-      setLoading(false);
+      const response = await paymentAPI.createStripePayment(totalPrice, 'gbp');
+      setClientSecret(response.clientSecret);
+      setStep(2);
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      alert('Failed to initialize payment. Please try again.');
     }
   };
 
@@ -184,6 +78,18 @@ function CheckoutContent() {
       </div>
     );
   }
+
+  const appearance = {
+    theme: 'stripe',
+    variables: {
+      colorPrimary: '#233e89',
+    },
+  };
+
+  const options = {
+    clientSecret,
+    appearance,
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 pt-24">
@@ -228,239 +134,347 @@ function CheckoutContent() {
             <div className="bg-white rounded-lg shadow-md p-6">
               {/* Step 1: Shipping Address */}
               {step === 1 && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Shipping Address</h2>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (validateShipping()) {
-                        setError('');
-                        setStep(2);
-                      }
-                    }}
-                    className="space-y-4"
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">
-                        Street Address
-                      </label>
-                      <input
-                        type="text"
-                        name="street"
-                        value={shippingAddress.street}
-                        onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={shippingAddress.city}
-                          onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          State/Province
-                        </label>
-                        <input
-                          type="text"
-                          name="state"
-                          value={shippingAddress.state}
-                          onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          Country
-                        </label>
-                        <input
-                          type="text"
-                          name="country"
-                          value={shippingAddress.country}
-                          onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                          Postal Code
-                        </label>
-                        <input
-                          type="text"
-                          name="zipCode"
-                          value={shippingAddress.zipCode}
-                          onChange={handleShippingChange}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={shippingAddress.phone}
-                        onChange={handleShippingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
-                        required
-                      />
-                    </div>
-
-                    {error && (
-                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        {error}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      className="w-full bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
-                    >
-                      Continue to Payment
-                    </button>
-                  </form>
-                </div>
+                <ShippingForm
+                  shippingAddress={shippingAddress}
+                  setShippingAddress={setShippingAddress}
+                  onContinue={createPaymentIntent}
+                />
               )}
 
               {/* Step 2: Payment */}
-              {step === 2 && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900">Complete Payment</h2>
-
-                  <form onSubmit={handleStripePayment}>
-                    <div className="mb-6">
-                      <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Card Details
-                      </label>
-                      <div className="p-4 border border-gray-300 rounded-lg">
-                        <CardElement
-                          options={{
-                            style: {
-                              base: {
-                                fontSize: '16px',
-                                color: '#424770',
-                                '::placeholder': {
-                                  color: '#aab7c4',
-                                },
-                              },
-                              invalid: {
-                                color: '#9e2146',
-                              },
-                            },
-                          }}
-                        />
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Your payment information is secure and encrypted
-                      </p>
-                    </div>
-
-                    {error && (
-                      <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                        {error}
-                      </div>
-                    )}
-
-                    <div className="flex gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setStep(1)}
-                        disabled={loading}
-                        className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50"
-                      >
-                        Back
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={loading || !stripe}
-                        className="flex-1 bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loading ? (
-                          <span className="flex items-center justify-center">
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                          </span>
-                        ) : (
-                          `Pay £${totalPrice.toFixed(2)}`
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </div>
+              {step === 2 && clientSecret && (
+                <Elements stripe={stripePromise} options={options}>
+                  <CheckoutForm
+                    shippingAddress={shippingAddress}
+                    cart={cart}
+                    user={user}
+                    totalPrice={totalPrice}
+                    taxPrice={taxPrice}
+                    shippingPrice={shippingPrice}
+                    onBack={() => setStep(1)}
+                  />
+                </Elements>
               )}
             </div>
           </div>
 
           {/* Order Summary Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h3>
+          <OrderSummary cart={cart} itemsPrice={itemsPrice} totalPrice={totalPrice} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-              <div className="space-y-4 mb-6">
-                {cart.items?.map((item) => (
-                  <div key={item.product._id} className="flex gap-4">
-                    <img
-                      src={item.product.images?.[0]?.url || '/placeholder.png'}
-                      alt={item.product.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-sm text-gray-900">{item.product.name}</h4>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        £{(item.price * item.quantity).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+function ShippingForm({ shippingAddress, setShippingAddress, onContinue }) {
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setShippingAddress({
+      ...shippingAddress,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const validateAndContinue = (e) => {
+    e.preventDefault();
+    const { street, city, state, country, zipCode, phone } = shippingAddress;
+    if (!street || !city || !state || !country || !zipCode || !phone) {
+      setError('Please fill in all shipping address fields');
+      return;
+    }
+    setError('');
+    onContinue();
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Shipping Address</h2>
+      <form onSubmit={validateAndContinue} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-1">
+            Street Address
+          </label>
+          <input
+            type="text"
+            name="street"
+            value={shippingAddress.street}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">City</label>
+            <input
+              type="text"
+              name="city"
+              value={shippingAddress.city}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              State/Province
+            </label>
+            <input
+              type="text"
+              name="state"
+              value={shippingAddress.state}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Country</label>
+            <input
+              type="text"
+              name="country"
+              value={shippingAddress.country}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              name="zipCode"
+              value={shippingAddress.zipCode}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-1">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            name="phone"
+            value={shippingAddress.phone}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] focus:border-transparent text-gray-900"
+            required
+          />
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="w-full bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
+        >
+          Continue to Payment
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function CheckoutForm({ shippingAddress, cart, user, totalPrice, taxPrice, shippingPrice, onBack }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const router = useRouter();
+  const { clearCart } = useCart();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      setError('Stripe has not loaded yet');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error: submitError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success`,
+          payment_method_data: {
+            billing_details: {
+              name: user?.name,
+              email: user?.email,
+              phone: shippingAddress.phone,
+              address: {
+                line1: shippingAddress.street,
+                city: shippingAddress.city,
+                state: shippingAddress.state,
+                country: shippingAddress.country,
+                postal_code: shippingAddress.zipCode,
+              },
+            },
+          },
+        },
+        redirect: 'if_required',
+      });
+
+      if (submitError) {
+        throw new Error(submitError.message);
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Create order
+        await createOrder({
+          id: paymentIntent.id,
+          status: 'succeeded',
+          update_time: new Date().toISOString(),
+          email_address: user?.email,
+        });
+      }
+    } catch (err) {
+      console.error('Payment error:', err);
+      setError(err.message || 'Payment failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const createOrder = async (paymentResult) => {
+    try {
+      const orderData = {
+        orderItems: cart.items.map(item => ({
+          product: item.product._id,
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        shippingAddress,
+        paymentMethod: 'Stripe',
+        paymentResult,
+        taxPrice,
+        shippingPrice,
+        totalPrice,
+      };
+
+      const response = await ordersAPI.createOrder(orderData);
+      await clearCart();
+      router.push(`/orders/${response.data._id}`);
+    } catch (err) {
+      console.error('Order creation error:', err);
+      setError('Payment successful but order creation failed. Please contact support.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Complete Payment</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div className="mb-6">
+          <PaymentElement />
+          <p className="text-sm text-gray-600 mt-2">
+            Your payment information is secure and encrypted
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={loading}
+            className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition disabled:opacity-50"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            disabled={loading || !stripe}
+            className="flex-1 bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </span>
+            ) : (
+              `Pay £${totalPrice.toFixed(2)}`
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function OrderSummary({ cart, itemsPrice, totalPrice }) {
+  return (
+    <div className="lg:col-span-1">
+      <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+        <h3 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h3>
+
+        <div className="space-y-4 mb-6">
+          {cart?.items?.map((item) => (
+            <div key={item.product._id} className="flex gap-4">
+              <img
+                src={item.product.images?.[0]?.url || '/placeholder.png'}
+                alt={item.product.name}
+                className="w-16 h-16 object-cover rounded"
+              />
+              <div className="flex-1">
+                <h4 className="font-semibold text-sm text-gray-900">{item.product.name}</h4>
+                <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
               </div>
-
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold text-gray-900">£{itemsPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold text-green-600">Free</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="font-semibold text-green-600">Free</span>
-                </div>
-                <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                  <span className="text-gray-900">Total</span>
-                  <span className="text-[#233e89]">£{totalPrice.toFixed(2)}</span>
-                </div>
+              <div className="text-right">
+                <p className="font-semibold text-gray-900">
+                  £{(item.price * item.quantity).toFixed(2)}
+                </p>
               </div>
             </div>
+          ))}
+        </div>
+
+        <div className="border-t pt-4 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Subtotal</span>
+            <span className="font-semibold text-gray-900">£{itemsPrice.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Shipping</span>
+            <span className="font-semibold text-green-600">Free</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Tax</span>
+            <span className="font-semibold text-green-600">Free</span>
+          </div>
+          <div className="border-t pt-2 flex justify-between text-lg font-bold">
+            <span className="text-gray-900">Total</span>
+            <span className="text-[#233e89]">£{totalPrice.toFixed(2)}</span>
           </div>
         </div>
       </div>

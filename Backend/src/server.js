@@ -22,19 +22,11 @@ connectDB();
 
 const app = express();
 
-// IMPORTANT: Webhook route MUST come before express.json() middleware
-// because Stripe webhooks need raw body for signature verification
-app.use('/api/payment', paymentRoutes);
-
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// CORS configuration
+// CORS configuration - MUST come before routes
 const allowedOrigins = [
   'https://eloravista.vercel.app',
   'http://localhost:3000',
-  'http://localhost:5173', // if using Vite
+  'http://localhost:5173',
 ];
 
 app.use(cors({
@@ -56,9 +48,18 @@ app.use(cors({
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
+
+// IMPORTANT: Webhook route MUST come before express.json() middleware
+// Stripe webhooks need raw body for signature verification
+app.use('/api/payment/stripe/webhook', express.raw({ type: 'application/json' }));
+
+// Regular middleware - comes AFTER webhook route
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Routes (excluding payment routes as they're already registered above)
+// Routes
+app.use('/api/payment', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
@@ -66,6 +67,11 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/contact', contactRoutes);
+
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ success: true, message: 'Server is running' });
+});
 
 // Error handler
 app.use((err, req, res, next) => {

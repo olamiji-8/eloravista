@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Create Stripe payment intent
+// Create Stripe payment intent with all payment methods
 export const createStripePayment = async (req, res) => {
   try {
     const { amount, currency = 'gbp' } = req.body;
@@ -15,7 +15,15 @@ export const createStripePayment = async (req, res) => {
       currency,
       automatic_payment_methods: {
         enabled: true,
+        allow_redirects: 'always', // Allow redirect-based payment methods
       },
+      // Enable specific payment methods
+      payment_method_types: [
+        'card',
+        'klarna',
+        'afterpay_clearpay',
+        'link',
+      ],
       metadata: { 
         userId: req.user?.id,
         userEmail: req.user?.email,
