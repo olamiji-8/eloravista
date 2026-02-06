@@ -41,7 +41,12 @@ export default function FashionPage() {
     </svg>
   );
 
-  const filterCategories = ['All', 'Bags', 'Accessories', 'Perfumes'];
+  const filterCategories = [
+    { name: 'All', value: 'All', Icon: AllIcon },
+    { name: 'Bags', value: 'Bags', Icon: BagIcon },
+    { name: 'Accessories', value: 'Accessories', Icon: AccessoriesIcon },
+    { name: 'Perfumes', value: 'Perfumes', Icon: PerfumeIcon },
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -79,16 +84,6 @@ export default function FashionPage() {
     }
   };
 
-  const getIconForCategory = (category) => {
-    switch(category) {
-      case 'All': return <AllIcon />;
-      case 'Bags': return <BagIcon />;
-      case 'Accessories': return <AccessoriesIcon />;
-      case 'Perfumes': return <PerfumeIcon />;
-      default: return null;
-    }
-  };
-
   return (
     <>
       <Navigation />
@@ -108,21 +103,24 @@ export default function FashionPage() {
       {/* Filter Tabs Section */}
       <section className="bg-white border-b sticky top-[72px] z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-3 overflow-x-auto py-4 scrollbar-hide">
-            {filterCategories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveFilter(category)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all ${
-                  activeFilter === category
-                    ? 'bg-[#233e89] text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {getIconForCategory(category)}
-                <span>{category}</span>
-              </button>
-            ))}
+          <div className="flex flex-col items-center justify-center gap-3 py-4">
+            {filterCategories.map((category) => {
+              const IconComponent = category.Icon;
+              return (
+                <button
+                  key={category.value}
+                  onClick={() => setActiveFilter(category.value)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all w-64 ${
+                    activeFilter === category.value
+                      ? 'bg-[#233e89] text-white shadow-lg scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <IconComponent />
+                  <span>{category.name}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
