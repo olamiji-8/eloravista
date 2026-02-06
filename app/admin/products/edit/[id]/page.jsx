@@ -15,6 +15,7 @@ export default function EditProductPage() {
     description: '',
     price: '',
     category: '',
+    subcategory: '',
     stock: '',
     featured: false,
   });
@@ -30,6 +31,12 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id;
+
+  const fashionSubcategories = [
+    'Bags',
+    'Accessories',
+    'Perfumes',
+  ];
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -57,6 +64,7 @@ export default function EditProductPage() {
         description: product.description,
         price: product.price.toString(),
         category: product.category || '',
+        subcategory: product.subcategory || '',
         stock: product.stock.toString(),
         featured: product.featured || false,
       });
@@ -77,6 +85,14 @@ export default function EditProductPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    
+    // Reset subcategory if category changes away from Fashion
+    if (name === 'category' && value !== 'Fashion') {
+      setFormData(prev => ({
+        ...prev,
+        subcategory: '',
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -125,6 +141,9 @@ export default function EditProductPage() {
       formDataToSend.append('description', formData.description);
       formDataToSend.append('price', formData.price);
       formDataToSend.append('category', formData.category);
+      if (formData.subcategory) {
+        formDataToSend.append('subcategory', formData.subcategory);
+      }
       formDataToSend.append('stock', formData.stock);
       formDataToSend.append('featured', formData.featured);
       formDataToSend.append('colors', JSON.stringify(colors));
@@ -252,26 +271,46 @@ export default function EditProductPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
-                >
-                  <option value="">Select a category</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Accessories">Accessories</option>
-                  <option value="Drinkware">Drinkware</option>
-                  <option value="Home and Baby">Home and Baby</option>
-                  <option value="General">General</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Books">Books</option>
-                  <option value="Sports">Sports</option>
-                </select>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  >
+                    <option value="">Select a category</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Drinkware">Drinkware</option>
+                    <option value="Home and Baby">Home and Baby</option>
+                    <option value="General">General</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Books">Books</option>
+                    <option value="Sports">Sports</option>
+                  </select>
+                </div>
+
+                {formData.category === 'Fashion' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Subcategory
+                    </label>
+                    <select
+                      name="subcategory"
+                      value={formData.subcategory}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                    >
+                      <option value="">Select a subcategory</option>
+                      {fashionSubcategories.map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Colors Section */}

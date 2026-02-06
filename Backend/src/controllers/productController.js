@@ -20,12 +20,14 @@ const uploadBufferToCloudinary = (file) =>
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const { category, search, page = 1, limit = 12, sort = '-createdAt' } = req.query;
+    const { category, subcategory, search, page = 1, limit = 12, sort = '-createdAt' } = req.query;
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 12;
 
     const query = {};
     if (category && category !== 'All Categories') query.category = category;
+    // ADD SUBCATEGORY FILTER
+    if (subcategory) query.subcategory = subcategory;
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -70,7 +72,7 @@ export const getProduct = async (req, res) => {
 // @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, featured, colors } = req.body;
+    const { name, description, price, category, subcategory, stock, featured, colors } = req.body;
     const imageUrls = [];
 
     if (req.files && req.files.length > 0) {
@@ -98,7 +100,7 @@ export const createProduct = async (req, res) => {
       }
     }
 
-    const product = await Product.create({
+    const productData = {
       name,
       description,
       price,
@@ -107,7 +109,14 @@ export const createProduct = async (req, res) => {
       featured: featured || false,
       colors: colorArray,
       images: imageUrls,
-    });
+    };
+
+    // ADD SUBCATEGORY IF PROVIDED
+    if (subcategory) {
+      productData.subcategory = subcategory;
+    }
+
+    const product = await Product.create(productData);
 
     res.status(201).json({ success: true, data: product });
   } catch (error) {
@@ -153,6 +162,12 @@ export const updateProduct = async (req, res) => {
           req.body.colors = req.body.colors.split(',').map(c => c.trim()).filter(c => c);
         }
       }
+    }
+
+    // HANDLE SUBCATEGORY UPDATE
+    // If category is being changed to non-Fashion, remove subcategory
+    if (req.body.category && req.body.category !== 'Fashion') {
+      req.body.subcategory = '';
     }
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
