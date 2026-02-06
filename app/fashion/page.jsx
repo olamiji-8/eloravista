@@ -16,11 +16,36 @@ export default function FashionPage() {
   const [activeFilter, setActiveFilter] = useState('All');
   const { addToCart } = useCart();
 
+  // Icon components for better visual consistency
+  const AllIcon = () => (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+    </svg>
+  );
+
+  const BagIcon = () => (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
+    </svg>
+  );
+
+  const AccessoriesIcon = () => (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+    </svg>
+  );
+
+  const PerfumeIcon = () => (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 01.5.866v7a1 1 0 01-1 1h-9a1 1 0 01-1-1v-7a1 1 0 01.5-.866l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+    </svg>
+  );
+
   const filterCategories = [
-    { name: 'All', value: 'All', icon: '🛍️' },
-    { name: 'Bags', value: 'Bags', icon: '👜' },
-    { name: 'Accessories', value: 'Accessories', icon: '👓' },
-    { name: 'Perfumes', value: 'Perfumes', icon: '🌸' },
+    { name: 'All', value: 'All', Icon: AllIcon },
+    { name: 'Bags', value: 'Bags', Icon: BagIcon },
+    { name: 'Accessories', value: 'Accessories', Icon: AccessoriesIcon },
+    { name: 'Perfumes', value: 'Perfumes', Icon: PerfumeIcon },
   ];
 
   useEffect(() => {
@@ -35,8 +60,6 @@ export default function FashionPage() {
         limit: 50,
       };
       
-      // If "All" is selected, fetch all Fashion & Beauty related items
-      // Otherwise, filter by the specific subcategory
       if (activeFilter === 'All') {
         params.category = 'Fashion';
       } else {
@@ -81,20 +104,23 @@ export default function FashionPage() {
       <section className="bg-white border-b sticky top-[72px] z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-center gap-3 overflow-x-auto py-4 scrollbar-hide">
-            {filterCategories.map((category) => (
-              <button
-                key={category.value}
-                onClick={() => setActiveFilter(category.value)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all ${
-                  activeFilter === category.value
-                    ? 'bg-[#233e89] text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <span className="text-xl">{category.icon}</span>
-                <span>{category.name}</span>
-              </button>
-            ))}
+            {filterCategories.map((category) => {
+              const IconComponent = category.Icon;
+              return (
+                <button
+                  key={category.value}
+                  onClick={() => setActiveFilter(category.value)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all ${
+                    activeFilter === category.value
+                      ? 'bg-[#233e89] text-white shadow-lg scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <IconComponent />
+                  <span>{category.name}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -160,8 +186,11 @@ export default function FashionPage() {
                         </div>
                       )}
                       {product.subcategory && (
-                        <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-[#233e89]">
-                          {product.subcategory}
+                        <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-[#233e89] flex items-center gap-1">
+                          {product.subcategory === 'Bags' && <BagIcon />}
+                          {product.subcategory === 'Accessories' && <AccessoriesIcon />}
+                          {product.subcategory === 'Perfumes' && <PerfumeIcon />}
+                          <span>{product.subcategory}</span>
                         </span>
                       )}
                       <button className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
