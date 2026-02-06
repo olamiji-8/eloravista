@@ -102,25 +102,19 @@ export default function FashionPage() {
 
       {/* Filter Tabs Section */}
       <section className="bg-white border-b sticky top-[72px] z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col items-center justify-center gap-3 py-4">
-            {filterCategories.map((category) => {
-              const IconComponent = category.Icon;
-              return (
-                <button
-                  key={category.value}
-                  onClick={() => setActiveFilter(category.value)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold whitespace-nowrap transition-all w-64 ${
-                    activeFilter === category.value
-                      ? 'bg-[#233e89] text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <IconComponent />
-                  <span>{category.name}</span>
-                </button>
-              );
-            })}
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-center">
+            <select 
+              className="px-4 py-2 bg-[#233e89] text-white border border-[#233e89] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3a7a] cursor-pointer"
+              value={activeFilter}
+              onChange={(e) => setActiveFilter(e.target.value)}
+            >
+              {filterCategories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </section>
