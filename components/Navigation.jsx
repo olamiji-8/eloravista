@@ -76,7 +76,7 @@ const Navigation = () => {
                   PRE-ORDER
                 </Link>
                 <Link href="/home-baby" className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors font-medium">
-                  HOME
+                  HOME & LIFESTYLE
                 </Link>
               </div>
             </div>
@@ -218,7 +218,7 @@ const Navigation = () => {
                   className="block text-white hover:text-gray-200 transition-colors font-medium py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  HOME
+                  HOME & LIFESTYLE
                 </Link>
               </div>
             )}
