@@ -27,6 +27,7 @@ const allowedOrigins = [
   'https://eloravista.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
+  'https://www.eloravista.com'
 ];
 
 app.use(cors({
