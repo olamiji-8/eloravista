@@ -431,45 +431,62 @@ export default function AdminPage() {
               {/* Orders Tab */}
               {activeTab === 'orders' && (
                 <div className="space-y-4">
-                  {filteredOrders.map((order) => (
-                    <div key={order._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow text-black">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
-                          <h3 className="font-bold text-lg mb-2">
-                            Order #{order._id.slice(-8).toUpperCase()}
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-1">
-                            Customer: {order.user?.name || 'N/A'}
-                          </p>
-                          <p className="text-gray-600 text-sm mb-1">
-                            Date: {new Date(order.createdAt).toLocaleDateString()}
-                          </p>
-                          <p className="text-gray-900 font-semibold">
-                            Total: £{order.totalPrice?.toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <select
-                            value={order.status || 'pending'}
-                            onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
-                          </select>
-                          <Link
-                            href={`/orders/${order._id}`}
-                            className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-center hover:bg-[#1d4ed8] transition-colors"
-                          >
-                            View Details
-                          </Link>
+                  {filteredOrders.map((order) => {
+                    // Determine if it's a guest order
+                    const isGuest = !order.user?.name && (order.guestName || order.guestEmail);
+                    const customerName = order.user?.name || order.guestName || 'Guest';
+                    const customerEmail = order.user?.email || order.guestEmail || 'N/A';
+
+                    return (
+                      <div key={order._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow text-black">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div>
+                            <h3 className="font-bold text-lg mb-2">
+                              Order #{order._id.slice(-8).toUpperCase()}
+                            </h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-gray-600 text-sm">
+                                Customer: {customerName}
+                              </p>
+                              {isGuest && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                                  Guest
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-600 text-sm mb-1">
+                              Email: {customerEmail}
+                            </p>
+                            <p className="text-gray-600 text-sm mb-1">
+                              Date: {new Date(order.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-900 font-semibold">
+                              Total: £{order.totalPrice?.toFixed(2)}
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <select
+                              value={order.status || 'pending'}
+                              onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="processing">Processing</option>
+                              <option value="shipped">Shipped</option>
+                              <option value="delivered">Delivered</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
+                            <Link
+                              href={`/orders/${order._id}`}
+                              className="bg-[#2563eb] text-white px-4 py-2 rounded-lg text-center hover:bg-[#1d4ed8] transition-colors"
+                            >
+                              View Details
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filteredOrders.length === 0 && (
                     <div className="text-center py-12 text-gray-500">
                       No orders found

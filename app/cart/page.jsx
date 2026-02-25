@@ -36,12 +36,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      // Redirect to login with checkout redirect
-      router.push('/login?redirect=/checkout');
-    } else {
-      router.push('/checkout');
-    }
+    router.push('/checkout');
   };
 
   if (loading) {
@@ -64,7 +59,7 @@ export default function CartPage() {
     );
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <>
         <Navigation />
@@ -97,12 +92,18 @@ export default function CartPage() {
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800">
                 <strong>Shopping as a guest?</strong> Your cart is saved locally. 
-                <Link href="/login" className="underline ml-1 font-semibold">
+                <Link href="/login?redirect=/checkout" className="underline ml-1 font-semibold">
                   Login
                 </Link> or 
-                <Link href="/register" className="underline ml-1 font-semibold">
+                <Link href="/register?redirect=/checkout" className="underline ml-1 font-semibold">
                   create an account
-                </Link> to sync your cart and checkout.
+                </Link> to sync your cart — or just{' '}
+                <button
+                  onClick={handleCheckout}
+                  className="underline font-semibold text-blue-900"
+                >
+                  continue as guest
+                </button>.
               </p>
             </div>
           )}
@@ -111,54 +112,59 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-                {cart.items.map((item) => (
-                  <div key={item.product._id} className="flex gap-4 pb-4 border-b last:border-b-0">
-                    <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                      {item.product.images && item.product.images.length > 0 ? (
-                        <img 
-                          src={item.product.images[0].url} 
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-black">
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900">{item.product.name}</h3>
-                      <p className="text-gray-600 text-sm mb-2">{item.product.category}</p>
-                      <p className="text-[#233e89] font-bold text-xl">£{item.price.toFixed(2)}</p>
-                    </div>
-                    
-                    <div className="flex flex-col items-end justify-between">
-                      <button 
-                        onClick={() => handleRemove(item.product._id)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                {cart.items.map((item) => {
+                  // Guard: skip items where product is null/undefined
+                  if (!item || !item.product) return null;
+
+                  return (
+                    <div key={item.product._id} className="flex gap-4 pb-4 border-b last:border-b-0">
+                      <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {item.product.images && item.product.images.length > 0 ? (
+                          <img 
+                            src={item.product.images[0].url} 
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-black text-xs">
+                            No Image
+                          </div>
+                        )}
+                      </div>
                       
-                      <div className="flex items-center gap-2 bg-[#233e89] rounded-lg p-1">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-gray-900">{item.product.name}</h3>
+                        <p className="text-gray-600 text-sm mb-2">{item.product.category}</p>
+                        <p className="text-[#233e89] font-bold text-xl">£{(item.price || 0).toFixed(2)}</p>
+                      </div>
+                      
+                      <div className="flex flex-col items-end justify-between">
                         <button 
-                          onClick={() => handleUpdateQuantity(item.product._id, item.quantity, -1)}
-                          className="p-1 rounded transition-colors"
+                          onClick={() => handleRemove(item.product._id)}
+                          className="text-red-500 hover:text-red-700 transition-colors"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
-                        <span className="px-3 font-semibold">{item.quantity}</span>
-                        <button 
-                          onClick={() => handleUpdateQuantity(item.product._id, item.quantity, 1)}
-                          className="p-1 rounded transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
+                        
+                        <div className="flex items-center gap-2 bg-[#233e89] rounded-lg p-1 text-white">
+                          <button 
+                            onClick={() => handleUpdateQuantity(item.product._id, item.quantity, -1)}
+                            className="p-1 rounded transition-colors"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="px-3 font-semibold">{item.quantity}</span>
+                          <button 
+                            onClick={() => handleUpdateQuantity(item.product._id, item.quantity, 1)}
+                            className="p-1 rounded transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             
@@ -182,16 +188,33 @@ export default function CartPage() {
                   </div>
                 </div>
                 
+                {/* Proceed to Checkout (works for both guest and logged in) */}
                 <button 
                   onClick={handleCheckout}
                   className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors mb-3"
                 >
-                  {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
+                  Proceed to Checkout
                 </button>
+
+                {/* Guest option */}
+                {!isAuthenticated && (
+                  <div className="space-y-2">
+                    <div className="relative flex items-center justify-center">
+                      <div className="border-t border-gray-300 w-full"></div>
+                      <span className="bg-white px-3 text-sm text-gray-500 absolute">or</span>
+                    </div>
+                    <Link
+                      href="/login?redirect=/checkout"
+                      className="block text-center border-2 border-[#233e89] text-[#233e89] py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors"
+                    >
+                      Login & Checkout
+                    </Link>
+                  </div>
+                )}
                 
                 <Link 
                   href="/store"
-                  className="block text-center text-[#233e89] hover:text-[#1d4ed8] font-semibold"
+                  className="block text-center text-[#233e89] hover:text-[#1d4ed8] font-semibold mt-3"
                 >
                   Continue Shopping
                 </Link>

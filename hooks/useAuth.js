@@ -1,49 +1,108 @@
 // hooks/useAuth.js
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { authAPI } from '@/lib/api/auth';
 
-const STORAGE_KEY = 'elora_user';
+// Use a site-specific key so other sites' data never bleeds in
+const USER_KEY = 'user'; // matches auth.js
+const TOKEN_KEY = 'token';
+const SESSION_EXPIRY_KEY = 'elora_session_expiry';
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in ms
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const sessionTimerRef = useRef(null);
 
-  // Load stored user once on mount
+  // Clear everything and reset state
+  const clearSession = () => {
+    try {
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(SESSION_EXPIRY_KEY);
+      localStorage.removeItem('elora_user'); // legacy key
+      localStorage.removeItem('elora_guest_cart');
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('Failed to clear session:', e);
+    }
+    setUser(null);
+    if (sessionTimerRef.current) {
+      clearTimeout(sessionTimerRef.current);
+    }
+  };
+
+  // Set up auto-logout timer
+  const setupSessionTimer = (expiryTime) => {
+    if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+    const timeLeft = expiryTime - Date.now();
+    if (timeLeft <= 0) {
+      clearSession();
+      return;
+    }
+    sessionTimerRef.current = setTimeout(() => {
+      clearSession();
+      window.location.href = '/login?reason=session_expired';
+    }, timeLeft);
+  };
+
+  // On mount: load stored user and validate session
   useEffect(() => {
     let mounted = true;
-    const init = async () => {
+    const init = () => {
       try {
-        const stored = authAPI?.getStoredUser?.() ?? JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (mounted && stored) {
-          setUser(stored);
+        const token = localStorage.getItem(TOKEN_KEY);
+        const storedUser = localStorage.getItem(USER_KEY);
+        const expiryStr = localStorage.getItem(SESSION_EXPIRY_KEY);
+
+        if (!token || !storedUser) {
+          // No session - clear any stale data
+          clearSession();
+          if (mounted) setLoading(false);
+          return;
+        }
+
+        // Check session expiry
+        const expiry = expiryStr ? parseInt(expiryStr) : null;
+        if (expiry && Date.now() > expiry) {
+          clearSession();
+          if (mounted) setLoading(false);
+          return;
+        }
+
+        const parsed = JSON.parse(storedUser);
+        if (mounted) {
+          setUser(parsed);
+          // Set up timer for remaining session time
+          if (expiry) setupSessionTimer(expiry);
         }
       } catch (e) {
         console.warn('AuthProvider: failed to load stored user', e);
+        clearSession();
       } finally {
         if (mounted) setLoading(false);
       }
     };
     init();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+      if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const persistUser = (u) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+      const expiry = Date.now() + SESSION_DURATION;
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      localStorage.setItem(SESSION_EXPIRY_KEY, String(expiry));
+      setupSessionTimer(expiry);
     } catch (e) {
       console.warn('AuthProvider: failed to persist user', e);
-    }
-  };
-
-  const clearStoredUser = () => {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.warn('AuthProvider: failed to clear stored user', e);
     }
   };
 
@@ -82,13 +141,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    try {
-      authAPI?.logout?.();
-    } catch (e) {
-      console.warn('AuthProvider: authAPI.logout error', e);
+    clearSession();
+    // Redirect to login page after logout
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
     }
-    setUser(null);
-    clearStoredUser();
   };
 
   const value = {
