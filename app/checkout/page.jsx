@@ -43,21 +43,23 @@ function CheckoutWrapper() {
   const { cart } = useCart();
   const router = useRouter();
   const [clientSecret, setClientSecret] = useState('');
-  // step 1 = account choice (guests only), 2 = shipping, 3 = payment
+  // step 1 = contact info, step 2 = shipping, step 3 = payment
   const [step, setStep] = useState(1);
-  const [guestInfo, setGuestInfo] = useState({ name: '', email: '' });
+  const [contactInfo, setContactInfo] = useState(() => ({
+    name: user?.name || '',
+    email: user?.email || '',
+  }));
   const [shippingAddress, setShippingAddress] = useState({
     street: '', city: '', state: '', country: 'NG', zipCode: '', phone: '',
   });
 
-  // Redirect if cart empty — only after auth finishes loading
+  // Redirect if cart empty
   useEffect(() => {
     if (!authLoading && cart && cart.items?.length === 0) {
       router.push('/cart');
     }
   }, [authLoading, cart, router]);
 
-  // Show spinner while auth resolves
   if (authLoading || !cart) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24">
@@ -68,9 +70,6 @@ function CheckoutWrapper() {
 
   const itemsPrice = cart?.totalPrice || 0;
   const totalPrice = itemsPrice;
-
-  // Authenticated users skip step 1 — derive the displayed step without storing it in state
-  const effectiveStep = isAuthenticated && step === 1 ? 2 : step;
 
   const createPaymentIntent = async () => {
     try {
@@ -92,25 +91,23 @@ function CheckoutWrapper() {
         {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-center">
-            {(!isAuthenticated ? [1, 2, 3] : [2, 3]).map((num, idx, arr) => (
+            {[1, 2, 3].map((num, idx, arr) => (
               <div key={num} className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  effectiveStep >= num ? 'bg-[#233e89] text-white' : 'bg-gray-300 text-gray-600'
+                  step >= num ? 'bg-[#233e89] text-white' : 'bg-gray-300 text-gray-600'
                 }`}>
                   {idx + 1}
                 </div>
                 {idx < arr.length - 1 && (
-                  <div className={`w-24 h-1 ${effectiveStep > num ? 'bg-[#233e89]' : 'bg-gray-300'}`} />
+                  <div className={`w-24 h-1 ${step > num ? 'bg-[#233e89]' : 'bg-gray-300'}`} />
                 )}
               </div>
             ))}
           </div>
-          <div className={`flex justify-center mt-2 text-sm ${!isAuthenticated ? 'gap-16' : 'gap-32'}`}>
-            {!isAuthenticated && (
-              <span className={effectiveStep === 1 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Account</span>
-            )}
-            <span className={effectiveStep === 2 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Shipping</span>
-            <span className={effectiveStep === 3 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Payment</span>
+          <div className="flex justify-center mt-2 text-sm gap-16">
+            <span className={step === 1 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Contact</span>
+            <span className={step === 2 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Shipping</span>
+            <span className={step === 3 ? 'text-[#233e89] font-semibold' : 'text-gray-600'}>Payment</span>
           </div>
         </div>
 
@@ -118,90 +115,32 @@ function CheckoutWrapper() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md p-6">
 
-              {/* Step 1: Account choice — only for guests */}
-              {effectiveStep === 1 && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-2 text-gray-900">How would you like to checkout?</h2>
-                  <p className="text-gray-500 mb-6 text-sm">Your cart is saved — choose how to continue.</p>
-
-                  {/* Guest option */}
-                  <div className="border-2 border-[#233e89] rounded-lg p-6 mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">Continue as Guest</h3>
-                    <p className="text-gray-500 text-sm mb-4">
-                      No account needed. We just need your name and email for your order confirmation.
-                    </p>
-                    <div className="space-y-3 mb-4">
-                      <input
-                        type="text"
-                        placeholder="Full Name *"
-                        value={guestInfo.name}
-                        onChange={e => setGuestInfo(p => ({ ...p, name: e.target.value }))}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] text-gray-900"
-                      />
-                      <input
-                        type="email"
-                        placeholder="Email Address *"
-                        value={guestInfo.email}
-                        onChange={e => setGuestInfo(p => ({ ...p, email: e.target.value }))}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] text-gray-900"
-                      />
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (!guestInfo.name || !guestInfo.email) {
-                          alert('Please enter your name and email to continue as guest.');
-                          return;
-                        }
-                        setStep(2);
-                      }}
-                      className="w-full bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
-                    >
-                      Continue as Guest →
-                    </button>
-                  </div>
-
-                  {/* Login option */}
-                  <div className="border border-gray-300 rounded-lg p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">Login or Create Account</h3>
-                    <p className="text-gray-500 text-sm mb-4">
-                      Track your orders, save your details, and checkout faster next time.
-                    </p>
-                    <div className="flex gap-3">
-                      <a
-                        href="/login?redirect=/checkout"
-                        className="flex-1 border-2 border-[#233e89] text-[#233e89] py-3 rounded-lg font-semibold text-center hover:bg-blue-50 transition"
-                      >
-                        Login
-                      </a>
-                      <a
-                        href="/register?redirect=/checkout"
-                        className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold text-center hover:bg-gray-200 transition"
-                      >
-                        Register
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              {/* Step 1: Contact Info */}
+              {step === 1 && (
+                <ContactForm
+                  contactInfo={contactInfo}
+                  setContactInfo={setContactInfo}
+                  onContinue={() => setStep(2)}
+                />
               )}
 
               {/* Step 2: Shipping */}
-              {effectiveStep === 2 && (
+              {step === 2 && (
                 <ShippingForm
                   shippingAddress={shippingAddress}
                   setShippingAddress={setShippingAddress}
                   onContinue={createPaymentIntent}
-                  onBack={isAuthenticated ? null : () => setStep(1)}
+                  onBack={() => setStep(1)}
                 />
               )}
 
               {/* Step 3: Payment */}
-              {effectiveStep === 3 && clientSecret && (
+              {step === 3 && clientSecret && (
                 <Elements stripe={stripePromise} options={options}>
                   <CheckoutForm
                     shippingAddress={shippingAddress}
                     cart={cart}
-                    user={isAuthenticated ? user : { name: guestInfo.name, email: guestInfo.email }}
-                    isGuest={!isAuthenticated}
+                    contactInfo={contactInfo}
                     totalPrice={totalPrice}
                     taxPrice={0}
                     shippingPrice={0}
@@ -215,6 +154,59 @@ function CheckoutWrapper() {
           <OrderSummary cart={cart} itemsPrice={itemsPrice} totalPrice={totalPrice} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function ContactForm({ contactInfo, setContactInfo, onContinue }) {
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!contactInfo.name.trim() || !contactInfo.email.trim()) {
+      setError('Please fill in your full name and email address');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactInfo.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    setError('');
+    onContinue();
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-2 text-gray-900">Contact Information</h2>
+      <p className="text-gray-500 text-sm mb-6">Your order confirmation will be sent to this email.</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Full Name *"
+          value={contactInfo.name}
+          onChange={e => setContactInfo(p => ({ ...p, name: e.target.value }))}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] text-gray-900"
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email Address *"
+          value={contactInfo.email}
+          onChange={e => setContactInfo(p => ({ ...p, email: e.target.value }))}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#233e89] text-gray-900"
+          required
+        />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>
+        )}
+        <button
+          type="submit"
+          className="w-full bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition"
+        >
+          Continue to Shipping →
+        </button>
+      </form>
     </div>
   );
 }
@@ -278,12 +270,10 @@ function ShippingForm({ shippingAddress, setShippingAddress, onContinue, onBack 
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>
         )}
         <div className="flex gap-3">
-          {onBack && (
-            <button type="button" onClick={onBack}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
-              ← Back
-            </button>
-          )}
+          <button type="button" onClick={onBack}
+            className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition">
+            ← Back
+          </button>
           <button type="submit"
             className="flex-1 bg-[#233e89] text-white py-3 rounded-lg font-semibold hover:bg-[#1d4ed8] transition">
             Continue to Payment →
@@ -294,7 +284,7 @@ function ShippingForm({ shippingAddress, setShippingAddress, onContinue, onBack 
   );
 }
 
-function CheckoutForm({ shippingAddress, cart, user, isGuest, totalPrice, taxPrice, shippingPrice, onBack }) {
+function CheckoutForm({ shippingAddress, cart, contactInfo, totalPrice, taxPrice, shippingPrice, onBack }) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -322,7 +312,7 @@ function CheckoutForm({ shippingAddress, cart, user, isGuest, totalPrice, taxPri
           id: paymentIntent.id,
           status: 'succeeded',
           update_time: new Date().toISOString(),
-          email_address: user?.email,
+          email_address: contactInfo.email,
         });
       }
     } catch (err) {
@@ -348,7 +338,8 @@ function CheckoutForm({ shippingAddress, cart, user, isGuest, totalPrice, taxPri
         taxPrice,
         shippingPrice,
         totalPrice,
-        ...(isGuest && { guestName: user.name, guestEmail: user.email }),
+        guestName: contactInfo.name,
+        guestEmail: contactInfo.email,
       };
 
       const response = await ordersAPI.createOrder(orderData);
@@ -364,11 +355,9 @@ function CheckoutForm({ shippingAddress, cart, user, isGuest, totalPrice, taxPri
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2 text-gray-900">Complete Payment</h2>
-      {isGuest && (
-        <p className="text-sm text-gray-500 mb-4">
-          Order confirmation will be sent to <strong>{user.email}</strong>
-        </p>
-      )}
+      <p className="text-sm text-gray-500 mb-4">
+        Order confirmation will be sent to <strong>{contactInfo.email}</strong>
+      </p>
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
           <PaymentElement options={{ fields: { billingDetails: 'auto' } }} />

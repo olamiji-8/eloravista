@@ -87,27 +87,6 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
           
-          {/* Guest Notice */}
-          {!isAuthenticated && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800">
-                <strong>Shopping as a guest?</strong> Your cart is saved locally. 
-                <Link href="/login?redirect=/checkout" className="underline ml-1 font-semibold">
-                  Login
-                </Link> or 
-                <Link href="/register?redirect=/checkout" className="underline ml-1 font-semibold">
-                  create an account
-                </Link> to sync your cart — or just{' '}
-                <button
-                  onClick={handleCheckout}
-                  className="underline font-semibold text-blue-900"
-                >
-                  continue as guest
-                </button>.
-              </p>
-            </div>
-          )}
-          
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
@@ -188,29 +167,12 @@ export default function CartPage() {
                   </div>
                 </div>
                 
-                {/* Proceed to Checkout (works for both guest and logged in) */}
                 <button 
                   onClick={handleCheckout}
                   className="w-full bg-[#233e89] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-colors mb-3"
                 >
                   Proceed to Checkout
                 </button>
-
-                {/* Guest option */}
-                {!isAuthenticated && (
-                  <div className="space-y-2">
-                    <div className="relative flex items-center justify-center">
-                      <div className="border-t border-gray-300 w-full"></div>
-                      <span className="bg-white px-3 text-sm text-gray-500 absolute">or</span>
-                    </div>
-                    <Link
-                      href="/login?redirect=/checkout"
-                      className="block text-center border-2 border-[#233e89] text-[#233e89] py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors"
-                    >
-                      Login & Checkout
-                    </Link>
-                  </div>
-                )}
                 
                 <Link 
                   href="/store"
