@@ -2,8 +2,8 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async ({ email, subject, html, text = '' }) => {
-  // If SMTP not configured, skip sending and log (useful for local dev)
-  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  // Check for required SMTP config using the correct env variable names
+  if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.warn('sendEmail: SMTP not configured, skipping email send', { to: email, subject });
     return;
   }
@@ -14,7 +14,7 @@ const sendEmail = async ({ email, subject, html, text = '' }) => {
     secure: process.env.EMAIL_SECURE === 'true',
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      pass: process.env.EMAIL_PASSWORD, // Fixed: was EMAIL_PASS, your .env uses EMAIL_PASSWORD
     },
   });
 
@@ -29,4 +29,4 @@ const sendEmail = async ({ email, subject, html, text = '' }) => {
   await transporter.sendMail(mailOptions);
 };
 
-export default sendEmail;
+export default sendEmail;   
