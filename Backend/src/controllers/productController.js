@@ -2,7 +2,6 @@
 import Product from '../models/Product.js';
 import cloudinary from '../config/cloudinary.js';
 
-// helper: upload buffer via data URI (no extra dependency)
 const uploadBufferToCloudinary = (file) =>
   cloudinary.uploader.upload(
     `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
@@ -20,13 +19,12 @@ const uploadBufferToCloudinary = (file) =>
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const { category, subcategory, search, page = 1, limit = 12, sort = '-createdAt' } = req.query;
+    const { category, subcategory, search, page = 1, limit = 12, sort = '-createdAt', featured } = req.query;
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 12;
 
     const query = {};
     if (category && category !== 'All Categories') query.category = category;
-    // ADD SUBCATEGORY FILTER
     if (subcategory) query.subcategory = subcategory;
     if (search) {
       query.$or = [
@@ -34,6 +32,8 @@ export const getProducts = async (req, res) => {
         { description: { $regex: search, $options: 'i' } },
       ];
     }
+    // Only filter by featured if explicitly passed
+    if (featured === 'true') query.featured = true;
 
     const products = await Product.find(query)
       .sort(sort)
@@ -85,14 +85,12 @@ export const createProduct = async (req, res) => {
       }
     }
 
-    // Parse colors if it's a string (from form data)
     let colorArray = [];
     if (colors) {
       if (typeof colors === 'string') {
         try {
           colorArray = JSON.parse(colors);
         } catch (e) {
-          // If JSON parse fails, treat as comma-separated string
           colorArray = colors.split(',').map(c => c.trim()).filter(c => c);
         }
       } else if (Array.isArray(colors)) {
@@ -106,18 +104,14 @@ export const createProduct = async (req, res) => {
       price,
       category,
       stock,
-      featured: featured || false,
+      featured: featured === 'true' || featured === true,
       colors: colorArray,
       images: imageUrls,
     };
 
-    // ADD SUBCATEGORY IF PROVIDED
-    if (subcategory) {
-      productData.subcategory = subcategory;
-    }
+    if (subcategory) productData.subcategory = subcategory;
 
     const product = await Product.create(productData);
-
     res.status(201).json({ success: true, data: product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -132,14 +126,11 @@ export const updateProduct = async (req, res) => {
     let product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
 
-    // Handle new images if provided
     if (req.files && req.files.length > 0) {
-      // Delete old images from cloudinary
       for (const image of product.images) {
         await cloudinary.uploader.destroy(image.public_id);
       }
 
-      // Upload new images
       const imageUrls = [];
       for (const file of req.files) {
         const uploadResult = await uploadBufferToCloudinary(file);
@@ -148,24 +139,19 @@ export const updateProduct = async (req, res) => {
           public_id: uploadResult.public_id,
         });
       }
-
       req.body.images = imageUrls;
     }
 
-    // Parse colors if it's a string (from form data)
     if (req.body.colors) {
       if (typeof req.body.colors === 'string') {
         try {
           req.body.colors = JSON.parse(req.body.colors);
         } catch (e) {
-          // If JSON parse fails, treat as comma-separated string
           req.body.colors = req.body.colors.split(',').map(c => c.trim()).filter(c => c);
         }
       }
     }
 
-    // HANDLE SUBCATEGORY UPDATE
-    // If category is being changed to non-Fashion, remove subcategory
     if (req.body.category && req.body.category !== 'Fashion') {
       req.body.subcategory = '';
     }
@@ -189,14 +175,41 @@ export const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
 
-    // Delete images from cloudinary
     for (const image of product.images) {
       await cloudinary.uploader.destroy(image.public_id);
     }
 
     await product.deleteOne();
-
     res.status(200).json({ success: true, message: 'Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Unfeature a single product (remove from homepage)
+// @route   PATCH /api/products/:id/unfeature
+// @access  Private/Admin
+export const unfeatureProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { featured: false },
+      { new: true }
+    );
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    res.status(200).json({ success: true, data: product, message: 'Product removed from featured' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Unfeature ALL featured products
+// @route   PATCH /api/products/unfeature-all
+// @access  Private/Admin
+export const unfeatureAllProducts = async (req, res) => {
+  try {
+    await Product.updateMany({ featured: true }, { featured: false });
+    res.status(200).json({ success: true, message: 'All products removed from featured' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

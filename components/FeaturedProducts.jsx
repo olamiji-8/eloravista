@@ -18,7 +18,7 @@ export default function FeaturedProducts() {
 
   const fetchFeaturedProducts = async () => {
     try {
-      const data = await productsAPI.getProducts({ limit: 8, sort: '-createdAt' });
+      const data = await productsAPI.getProducts({ featured: true, limit: 8, sort: '-createdAt' });
       setProducts(data.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -28,13 +28,11 @@ export default function FeaturedProducts() {
   };
 
   const handleAddToCart = async (product) => {
-    // Prevent multiple clicks
     if (addingToCart[product._id]) return;
     
     setAddingToCart(prev => ({ ...prev, [product._id]: true }));
     
     try {
-      // Pass full product details for guest cart support
       await addToCart(product._id, 1, {
         _id: product._id,
         name: product.name,
@@ -77,6 +75,10 @@ export default function FeaturedProducts() {
     );
   }
 
+  if (products.length === 0) {
+    return null; // Don't render section if no featured products
+  }
+
   return (
     <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -99,7 +101,6 @@ export default function FeaturedProducts() {
                   ) : (
                     <span className="text-gray-400">No Image</span>
                   )}
-                  {/* Sale Badge */}
                   {product.originalPrice && product.originalPrice > product.price && (
                     <span className="absolute bottom-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 rounded">
                       Sale
@@ -113,7 +114,6 @@ export default function FeaturedProducts() {
                 </Link>
                 <p className="text-gray-600 mb-1 sm:mb-2 text-xs sm:text-sm line-clamp-1 sm:line-clamp-2 hidden sm:block">{product.description}</p>
                 
-                {/* Colors Display - hidden on mobile */}
                 {product.colors && product.colors.length > 0 && (
                   <div className="mb-3 hidden sm:block">
                     <p className="text-xs text-gray-500 mb-1">Available Colors:</p>

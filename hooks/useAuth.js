@@ -4,8 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { authAPI } from '@/lib/api/auth';
 
-// Use a site-specific key so other sites' data never bleeds in
-const USER_KEY = 'user'; // matches auth.js
+const USER_KEY = 'user';
 const TOKEN_KEY = 'token';
 const SESSION_EXPIRY_KEY = 'elora_session_expiry';
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in ms
@@ -18,13 +17,12 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const sessionTimerRef = useRef(null);
 
-  // Clear everything and reset state
   const clearSession = () => {
     try {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(SESSION_EXPIRY_KEY);
-      localStorage.removeItem('elora_user'); // legacy key
+      localStorage.removeItem('elora_user');
       localStorage.removeItem('elora_guest_cart');
       sessionStorage.clear();
     } catch (e) {
@@ -36,7 +34,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Set up auto-logout timer
   const setupSessionTimer = (expiryTime) => {
     if (sessionTimerRef.current) clearTimeout(sessionTimerRef.current);
     const timeLeft = expiryTime - Date.now();
@@ -50,7 +47,6 @@ export const AuthProvider = ({ children }) => {
     }, timeLeft);
   };
 
-  // On mount: load stored user and validate session
   useEffect(() => {
     let mounted = true;
     const init = () => {
@@ -60,13 +56,11 @@ export const AuthProvider = ({ children }) => {
         const expiryStr = localStorage.getItem(SESSION_EXPIRY_KEY);
 
         if (!token || !storedUser) {
-          // No session - clear any stale data
           clearSession();
           if (mounted) setLoading(false);
           return;
         }
 
-        // Check session expiry
         const expiry = expiryStr ? parseInt(expiryStr) : null;
         if (expiry && Date.now() > expiry) {
           clearSession();
@@ -77,7 +71,6 @@ export const AuthProvider = ({ children }) => {
         const parsed = JSON.parse(storedUser);
         if (mounted) {
           setUser(parsed);
-          // Set up timer for remaining session time
           if (expiry) setupSessionTimer(expiry);
         }
       } catch (e) {
@@ -142,9 +135,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     clearSession();
-    // Redirect to login page after logout
+    // Redirect to home page after logout (not login)
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   };
 
